@@ -1,8 +1,27 @@
 /*首页温度&天气的样式*/
 .weather-wrapper {
+  /*上边距*/
   padding-top: 174rpx;
+  /*下边距*/
   padding-bottom: 250rpx;
-  background-color: moccasin;
+  /*相对定位*/
+  position: relative;
+}
+
+/*首页底图的样式*/
+.weather-bg{
+  /*绝对定位*/
+  position: absolute;
+  /*绘制上部开始位置*/
+  top: 0;
+  /*绘制左边开始位置*/
+  left: 0;
+  /*视图宽度*/
+  width: 100%;
+  /*视图高度*/
+  height: 100%;
+  /*堆叠顺序 放兄弟视图底部*/
+  z-index: -1;
 }
 
 /*首页温度的样式*/
