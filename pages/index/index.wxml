@@ -7,7 +7,7 @@
 
 <!-- scaleToFill：默认缩放模式 -->
   <image class="weather-bg"
-          src="/images/sunny-bg.png"
+          src="{{nowWeatherBackground}}"
           mode="scaleToFill">
   </image>
 

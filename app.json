@@ -4,7 +4,7 @@
   ],
   "window":{
     "backgroundTextStyle":"light",
-    "navigationBarBackgroundColor": "#cbeefd",
+    "navigationBarBackgroundColor": "#fff",
     "navigationBarTitleText": "洪丹天气",
     "navigationBarTextStyle":"black"
   }
