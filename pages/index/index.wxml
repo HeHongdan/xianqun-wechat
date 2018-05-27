@@ -1,7 +1,7 @@
 <view class="weather-wrapper">
 
 <!-- {{数据}}：动态绑定数据 -->
-  <view class="temp">{{nowTemp}}℃</view>
+  <view class="temp">{{nowTemp}}</view>
 
   <view class="weather">{{nowWeather}}</view>
 
