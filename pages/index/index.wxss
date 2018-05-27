@@ -10,3 +10,15 @@
   /*透明度*/
   opacity: 0.8
 }
+
+/*首页天气的样式*/
+.weather {
+  /*对齐方式*/
+  text-align:center;
+  /*字体大小*/
+  font-size: 40rpx;
+  /*字体行高*/
+  line-height: 56rpx;
+  /*透明度*/
+  opacity: 0.65
+}
