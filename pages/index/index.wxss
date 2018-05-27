@@ -1,4 +1,12 @@
-.title {
+/*首页温度的样式*/
+.temp {
   margin-top:300rpx;
+  /*对齐方式*/
   text-align:center;
+  /*字体大小*/
+  font-size: 200rpx;
+  /*字体行高*/
+  line-height: 280rpx;
+  /*透明度*/
+  opacity: 0.8
 }
