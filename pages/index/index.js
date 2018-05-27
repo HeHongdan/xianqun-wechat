@@ -28,6 +28,20 @@ Page({
 
   //生命周期onLoad
   onLoad() {
+    this.getNow()
+  },
+
+  //下拉刷新事件
+  onPullDownRefresh(){
+    //传入匿名函数
+    this.getNow(()=>{
+      wx.stopPullDownRefresh()
+      console.log("停止下拉刷新")
+    })
+  },
+
+  //获取服务器数据并设置视图的函数(callback:回调函数)
+  getNow(callback){
     //微信get请求
     wx.request({
       //请求接口
@@ -62,8 +76,14 @@ Page({
           frontColor: '#000000',
           backgroundColor: weatherColorMap[weather],
         })
+      },
 
+      //执行停止当前页面下拉刷新
+      complete: ()=>{
+        //callback不为空执行callb()
+        callback && callback()
       }
+
     })
   }
 
