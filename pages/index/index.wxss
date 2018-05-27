@@ -1,24 +1,30 @@
+/*首页温度&天气的样式*/
+.weather-wrapper {
+  padding-top: 174rpx;
+  padding-bottom: 250rpx;
+  background-color: moccasin;
+}
+
 /*首页温度的样式*/
 .temp {
-  margin-top:300rpx;
   /*对齐方式*/
-  text-align:center;
+  text-align: center;
   /*字体大小*/
   font-size: 200rpx;
   /*字体行高*/
   line-height: 280rpx;
   /*透明度*/
-  opacity: 0.8
+  opacity: 0.8;
 }
 
 /*首页天气的样式*/
 .weather {
   /*对齐方式*/
-  text-align:center;
+  text-align: center;
   /*字体大小*/
   font-size: 40rpx;
   /*字体行高*/
   line-height: 56rpx;
   /*透明度*/
-  opacity: 0.65
+  opacity: 0.65;
 }
