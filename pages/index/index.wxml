@@ -1,8 +1,14 @@
 <view class="weather-wrapper">
+
   <view class="temp">12℃</view>
+
   <view class="weather">晴天</view>
+
   <image class="weather-bg"
           src="/images/sunny-bg.png"
           mode="scaleToFill">
+          <!-- 默认缩放模式 -->
   </image>
+
+  
 </view>

@@ -4,8 +4,8 @@
   ],
   "window":{
     "backgroundTextStyle":"light",
-    "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "WeChat",
+    "navigationBarBackgroundColor": "#cbeefd",
+    "navigationBarTitleText": "洪丹天气",
     "navigationBarTextStyle":"black"
   }
 }
