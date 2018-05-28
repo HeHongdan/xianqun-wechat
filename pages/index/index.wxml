@@ -11,8 +11,15 @@
 
 </view>
 
+ <!-- 未来24小时天气预报 -->
 <view class='timetips'>
+
+  <!-- 未来天气图标 -->
   <image class='timetips-icon' src='/images/time-icon.png'></image>
 
+  <!-- 未来天气文本 -->
   <view class='timetips-text'>未来24小时天气预报</view>
 </view>
+
+<!-- 并列视图 -->
+<view wx:for="{{[1,2,3,4,5]}}">{{item}}</view>
