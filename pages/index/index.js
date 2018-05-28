@@ -23,7 +23,8 @@ Page({
   data: {
     nowTemp: '14℃',
     nowWeather: '多云',
-    nowWeatherBackground: '/images/sunny-bg.png'
+    nowWeatherBackground: '/images/sunny-bg.png',
+    forecast: [1, 2, 3, 4, 5, 6, 7, 8, 9]
   },
 
   //生命周期onLoad

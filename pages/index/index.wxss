@@ -51,6 +51,7 @@
   align-items: center;
   /*右(外)边距*/
   margin-top: 40rpx;
+  margin-bottom: 45rpx;
 }
 /*24小时左边图标*/
 .timetips-icon{
@@ -63,4 +64,19 @@
   font-size: 30rpx;
   line-height: 42rpx;
   opacity: 0.5;
+}
+/*并列视图的样式*/
+.forecast-list{
+  display: flex;
+}
+/*并列项目的样式*/
+.forecast-item{
+  display: flex;
+  /*项目方向(横)*/
+  flex-direction: column;
+  /*项目不压缩显示*/
+  flex-shrink: 0;
+  width: 120rpx;
+  font-size: 36rpx;
+  line-height: 42rpx;
 }

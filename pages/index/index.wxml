@@ -21,5 +21,11 @@
   <view class='timetips-text'>未来24小时天气预报</view>
 </view>
 
-<!-- 并列视图 -->
-<view wx:for="{{[1,2,3,4,5]}}">{{item}}</view>
+<!-- 横向滑动的列表 -->
+<scroll-view scroll-x>
+  <!-- 并列(列表)视图 -->
+  <view class='forecast-list'>
+    <view class='forecast-item' wx:for="{{forecast}}">{{item}}     </view>
+</view>
+</scroll-view>
+
