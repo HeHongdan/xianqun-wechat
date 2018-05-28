@@ -24,7 +24,7 @@ Page({
     nowTemp: '14℃',
     nowWeather: '多云',
     nowWeatherBackground: '/images/sunny-bg.png',
-    forecast: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    forecast: []
   },
 
   //生命周期onLoad
@@ -124,6 +124,25 @@ Page({
           frontColor: '#000000',
           backgroundColor: weatherColorMap[weather],
         })
+
+        /**设置forcast列表**/
+        //获取当前小时
+        let nowHour = new Date().getHours()
+        let forecast = []
+        //for循环设值
+        for(let i = 0; i<24;i+=3){
+          forecast.push({
+            time: (i+nowHour) % 24 + '时',
+            iconPath: '/images/sunny-icon.png',
+            temp: '12℃',
+          })
+        }
+        //设值列表第一项
+        forecast[0].time = '现在'
+        this.setData({
+          forecast: forecast
+        })
+
       },
 
       //执行停止当前页面下拉刷新

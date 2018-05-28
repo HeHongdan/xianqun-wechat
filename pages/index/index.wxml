@@ -27,11 +27,11 @@
   <view class='forecast-list'>
     <view class='forecast-item' wx:for="{{forecast}}">
     <!-- 未来天气时间 -->
-    <view class='forecast-time'>{{item}}</view>
+    <view class='forecast-time'>{{item.time}}</view>
     <!-- 未来天气图标 -->
-    <image class='forecast-weather' src='/images/sunny-icon.png'></image>
+    <image class='forecast-weather' src='{{item.iconPath}}'></image>
     <!-- 未来天气文本 -->
-    <view class='forecast-temp'>{{item}}</view>
+    <view class='forecast-temp'>{{item.temp}}</view>
     </view>
 </view>
 </scroll-view>
