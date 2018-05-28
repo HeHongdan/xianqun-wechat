@@ -25,7 +25,14 @@
 <scroll-view scroll-x>
   <!-- 并列(列表)视图 -->
   <view class='forecast-list'>
-    <view class='forecast-item' wx:for="{{forecast}}">{{item}}     </view>
+    <view class='forecast-item' wx:for="{{forecast}}">
+    <!-- 未来天气时间 -->
+    <view class='forecast-time'>{{item}}</view>
+    <!-- 未来天气图标 -->
+    <image class='forecast-weather' src='/images/sunny-icon.png'></image>
+    <!-- 未来天气文本 -->
+    <view class='forecast-temp'>{{item}}</view>
+    </view>
 </view>
 </scroll-view>
 
