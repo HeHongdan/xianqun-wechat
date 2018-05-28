@@ -1,15 +1,18 @@
 <view class="weather-wrapper">
 
-<!-- {{数据}}：动态绑定数据 -->
+  <!-- {{数据}}：动态绑定数据 -->
   <view class="temp">{{nowTemp}}</view>
 
   <view class="weather">{{nowWeather}}</view>
 
-<!-- scaleToFill：默认缩放模式 -->
-  <image class="weather-bg"
-          src="{{nowWeatherBackground}}"
-          mode="scaleToFill">
+  <!-- scaleToFill：默认缩放模式 -->
+  <image class="weather-bg" src="{{nowWeatherBackground}}" mode="scaleToFill">
   </image>
 
+</view>
 
+<view class='timetips'>
+  <image class='timetips-icon' src='/images/time-icon.png'></image>
+
+  <view class='timetips-text'>未来24小时天气预报</view>
 </view>

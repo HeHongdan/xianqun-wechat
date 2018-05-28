@@ -7,7 +7,6 @@
   /*相对定位*/
   position: relative;
 }
-
 /*首页底图的样式*/
 .weather-bg{
   /*绝对定位*/
@@ -23,7 +22,6 @@
   /*堆叠顺序 放兄弟视图底部*/
   z-index: -1;
 }
-
 /*首页温度的样式*/
 .temp {
   /*对齐方式*/
@@ -35,15 +33,34 @@
   /*透明度*/
   opacity: 0.8;
 }
-
 /*首页天气的样式*/
 .weather {
-  /*对齐方式*/
   text-align: center;
-  /*字体大小*/
   font-size: 40rpx;
-  /*字体行高*/
   line-height: 56rpx;
-  /*透明度*/
   opacity: 0.65;
+}
+
+/*未来24小时天气的样式*/
+.timetips {
+  /*显示框类型*/
+  display: flex;
+  /*横方向对齐*/
+  justify-content: center;
+  /*居中对齐*/
+  align-items: center;
+  /*右(外)边距*/
+  margin-top: 40rpx;
+}
+/*24小时左边图标*/
+.timetips-icon{
+  margin-right: 10rpx;
+  width: 36rpx;
+  height: 28rpx;
+}
+/*未来24小时天气文本的样式*/
+.timetips-text{
+  font-size: 30rpx;
+  line-height: 42rpx;
+  opacity: 0.5;
 }

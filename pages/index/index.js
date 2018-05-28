@@ -29,6 +29,9 @@ Page({
   //生命周期onLoad
   onLoad() {
     this.getNow()
+    this.getSX1()
+    this.getSX2()
+    this.getSX3()
   },
 
   //下拉刷新事件
@@ -39,6 +42,50 @@ Page({
       console.log("停止下拉刷新")
     })
   },
+
+
+
+  //中国天气网API获取遂溪天气
+  getSX1() {
+    //微信get请求
+    wx.request({
+      //请求接口
+      url: 'http://www.weather.com.cn/data/sk/101281007.html',
+      //请求成功（箭头函数，参数：res）
+      success: res => {
+        //打印日志
+        console.log("遂溪1")
+        console.log(res)
+      },
+    })
+  },
+  getSX2() {
+    //微信get请求
+    wx.request({
+      //请求接口
+      url: 'http://www.weather.com.cn/data/cityinfo/101281007.html',
+      //请求成功（箭头函数，参数：res）
+      success: res => {
+        //打印日志
+        console.log("遂溪2")
+        console.log(res)
+      },
+    })
+  },
+  getSX3(){
+    //微信get请求
+    wx.request({
+      //请求接口
+      url: 'http://mobile.weather.com.cn/data/forecast/101281007.html?_=1381891660081',
+      //请求成功（箭头函数，参数：res）
+      success: res => {
+        //打印日志
+        console.log("遂溪3")
+        console.log(res)
+      },
+    })
+  },
+
 
   //获取服务器数据并设置视图的函数(callback:回调函数)
   getNow(callback){
