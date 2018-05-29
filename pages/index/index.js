@@ -183,4 +183,10 @@ Page({
     })
   },
 
+  //按钮点击事件
+  onTapDayWeather(){
+    wx.showToast({
+    })
+  }
+
 })

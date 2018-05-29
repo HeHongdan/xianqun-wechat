@@ -11,7 +11,7 @@
 
 
 
-  <view class='day-weather'>
+  <view class='day-weather' bindtap='onTapDayWeather'>
 
    <view class='day-text'>{{todayDate}}</view>
 
