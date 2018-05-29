@@ -24,7 +24,9 @@ Page({
     nowTemp: '14℃',
     nowWeather: '多云',
     nowWeatherBackground: '/images/sunny-bg.png',
-    hourlyWeather: []
+    hourlyWeather: [],
+    todayDate: "",
+    todayTemp: "",
   },
 
   //生命周期onLoad
@@ -107,6 +109,7 @@ Page({
         let result = res.data.result
         this.setNow(result)
         this.setHourlyWeatherresult(result)
+        this.setToday(result)
       },
 
       //执行停止当前页面下拉刷新
@@ -167,5 +170,17 @@ Page({
       hourlyWeather: hourlyWeather
     })
   },
-  
+
+  //设置今天的天气最低最高温
+  setToday(result){
+    //获取当前时间
+    let date = new Date()
+    this.setData({
+      //设置最低最高温
+      todayTemp: `${result.today.minTemp}° - ${result.today.maxTemp}°`,
+      //设置今天时间
+      todayDate: `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} 今天`,
+    })
+  },
+
 })

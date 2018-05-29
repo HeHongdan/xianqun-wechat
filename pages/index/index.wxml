@@ -9,6 +9,18 @@
   <image class="weather-bg" src="{{nowWeatherBackground}}" mode="scaleToFill">
   </image>
 
+
+
+  <view class='day-weather'>
+
+   <view class='day-text'>{{todayDate}}</view>
+
+     <view class='time-text'>{{todayTemp}}</view>
+     <image class='arrow-icon' src='/images/arrow.png'></image>
+  </view>
+ 
+
+
 </view>
 
  <!-- 未来24小时天气预报 -->
