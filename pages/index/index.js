@@ -19,7 +19,9 @@ const weatherColorMap = {
 
 Page({
 
-  //动态绑定数据(对应.wxml文件)
+  /**
+   * 页面的初始数据//动态绑定数据(对应.wxml文件)
+   */
   data: {
     nowTemp: '14℃',
     nowWeather: '多云',
@@ -185,7 +187,9 @@ Page({
 
   //按钮点击事件
   onTapDayWeather(){
-    wx.showToast({
+    //跳转事件
+    wx.navigateTo({
+      url: '/pages/list/list',
     })
   }
 
