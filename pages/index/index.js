@@ -105,48 +105,8 @@ Page({
 
         //取出data标签下的result赋值给result（var：全局变量、let：局部(块级)变量、const ：声明常量(块级)）
         let result = res.data.result
-        let temp = result.now.temp
-        let weather = result.now.weather
-
-        console.log(temp, weather)
-
-        //异步改变显示内容
-        this.setData({
-          //字符拼接
-          nowTemp: temp + '℃',
-          //使用映射关系赋值
-          nowWeather: weatherMap[weather],
-          nowWeatherBackground: '/images/' + weather + '-bg.png'
-        })
-
-        //动态改变导航栏颜色
-        wx.setNavigationBarColor({
-          frontColor: '#000000',
-          backgroundColor: weatherColorMap[weather],
-        })
-
-        /**设置forcast列表**/
-        let forecast = result.forecast
-        //获取当前小时
-        let nowHour = new Date().getHours()
-        let hourlyWeather = []
-        //for循环设值
-        for(let i = 0; i<24;i+=3){
-          hourlyWeather.push({
-            //赋值时间
-            time: (i+nowHour) % 24 + '时',
-            //赋值icon
-            iconPath: '/images/' + forecast[i / 3].weather + '-icon.png',
-            //赋值温度
-            temp: forecast[i/3].temp+'℃'
-          })
-        }
-        //设值列表第一项
-        hourlyWeather[0].time = '现在'
-        this.setData({
-          hourlyWeather: hourlyWeather
-        })
-
+        this.setNow(result)
+        this.setHourlyWeatherresult(result)
       },
 
       //执行停止当前页面下拉刷新
@@ -156,6 +116,56 @@ Page({
       }
 
     })
-  }
+  },
 
+  //设置当前天气
+  setNow(result){
+    //取出当前温度
+    let temp = result.now.temp
+    //取出当前天气
+    let weather = result.now.weather
+
+    console.log(temp, weather)
+
+    //动态改变导航栏颜色
+    wx.setNavigationBarColor({
+      frontColor: '#000000',
+      backgroundColor: weatherColorMap[weather],
+    })
+
+    //异步改变显示内容
+    this.setData({
+      //字符拼接
+      nowTemp: temp + '℃',
+      //使用映射关系赋值
+      nowWeather: weatherMap[weather],
+      nowWeatherBackground: '/images/' + weather + '-bg.png'
+    })
+  },
+
+  //设置未来24小时天气
+  setHourlyWeatherresult(result){
+    /**设置forcast列表**/
+    let forecast = result.forecast
+    //获取当前小时
+    let nowHour = new Date().getHours()
+    let hourlyWeather = []
+    //for循环设值
+    for (let i = 0; i < 8; i += 1) {
+      hourlyWeather.push({
+        //赋值时间
+        time: (i * 3 + nowHour) % 24 + '时',
+        //赋值icon
+        iconPath: '/images/' + forecast[i].weather + '-icon.png',
+        //赋值温度
+        temp: forecast[i].temp + '℃'
+      })
+    }
+    //设值列表第一项
+    hourlyWeather[0].time = '现在'
+    this.setData({
+      hourlyWeather: hourlyWeather
+    })
+  },
+  
 })
