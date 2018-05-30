@@ -31,8 +31,8 @@ Page({
     hourlyWeather: [],
     todayDate: "",
     todayTemp: "",
-    city:'广州市',
-    locationTipsText:"点击获取当前位置"
+    city: '广州市',
+    locationTipsText: "点击获取当前位置"
   },
 
   //生命周期onLoad
@@ -197,7 +197,7 @@ Page({
   onTapDayWeather() {
     //跳转事件
     wx.navigateTo({
-      url: '/pages/list/list',
+      url: '/pages/list/list?city=' + this.data.city
     })
   },
 
