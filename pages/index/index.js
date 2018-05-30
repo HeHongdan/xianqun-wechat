@@ -20,6 +20,15 @@ const weatherColorMap = {
 //常数变量(腾讯地图)
 const QQMapWX = require('../../libs/qqmap-wx-jssdk.js')
 
+//常数变量(标记定位权限)
+const UNPROMPTED = 0
+const UNAUTHORIZED = 1
+const AUTHORIZED = 2
+
+const UNPROMPTED_TIPS = "点击获取当前位置"
+const UNAUTHORIZED_TIPS = "点击开启位置权限"
+const AUTHORIZED_TIPS = ""
+
 Page({
   /**
    * 页面的初始数据//动态绑定数据(对应.wxml文件)
@@ -32,7 +41,8 @@ Page({
     todayDate: "",
     todayTemp: "",
     city: '广州市',
-    locationTipsText: "点击获取当前位置"
+    locationTipsText: "点击获取当前位置",
+    locationAuthType: UNPROMPTED, UNAUTHORIZED, AUTHORIZED
   },
 
   //生命周期onLoad
@@ -202,12 +212,26 @@ Page({
   },
 
   /**
-   * 获取定位(经纬度)
+   * 获取定位业务逻辑
    */
   onTapLocation() {
+    //判断标记进入不同逻辑
+    if (this.data.locationAuthType === UNAUTHORIZED)
+      wx.openSetting()
+    else
+      this.getLocation()
+  },
+
+    //获取(定位)经纬度
+    getLocation(){
     //微信接口获取本地(定位)经纬度
     wx.getLocation({
+      /** 获取定位成功 */
       success: res => {
+        this.setData({
+          locationAuthType: AUTHORIZED,
+          locationTipsText: AUTHORIZED_TIPS,
+        })
         console.log(res.latitude, res.longitude)
         //腾讯地图接口根据本地(定位)经纬度逆地址解析城市
         this.qqmapsdk.reverseGeocoder({
@@ -238,11 +262,31 @@ Page({
             })
 
           },
-
         })
 
       },
+
+      /** 获取定位失败 */
+      fail: () => {
+        //改变标记及提示内容
+        this.setData({
+          locationAuthType: UNAUTHORIZED,
+          locationTipsText: UNAUTHORIZED_TIPS,
+        })
+
+
+
+        //吐司显示
+        wx.showToast({
+          title: "定位失败",
+          icon: 'loading',
+          duration: 1000,
+          mask: true
+        })
+      },
+
     })
-  },
+    }
+  
 
 })
