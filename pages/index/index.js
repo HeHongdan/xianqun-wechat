@@ -25,10 +25,6 @@ const UNPROMPTED = 0
 const UNAUTHORIZED = 1
 const AUTHORIZED = 2
 
-const UNPROMPTED_TIPS = "点击获取当前位置"
-const UNAUTHORIZED_TIPS = "点击开启位置权限"
-const AUTHORIZED_TIPS = ""
-
 Page({
   /**
    * 页面的初始数据//动态绑定数据(对应.wxml文件)
@@ -41,7 +37,6 @@ Page({
     todayDate: "",
     todayTemp: "",
     city: '广州市',
-    locationTipsText: "点击获取当前位置",
     locationAuthType: UNPROMPTED, UNAUTHORIZED, AUTHORIZED
   },
 
@@ -59,9 +54,6 @@ Page({
         this.setData({
           //如果已授权定位(auth等于true)就locationAuthType赋值AUTHORIZED，否则再如果未授权定位(auth等于false)就locationAuthType赋值UNAUTHORIZED否则locationAuthType赋值UNPROMPTED
           locationAuthType: auth ? AUTHORIZED : (auth === false) ? UNAUTHORIZED : UNPROMPTED,
-          //如果已授权定位就...
-          locationTipsText: auth ? AUTHORIZED_TIPS : (auth === false) ? UNAUTHORIZED_TIPS : UNPROMPTED_TIPS
-
         })
 
         //判断是否权限(授权后才重新获取定位并更新信息)
@@ -260,7 +252,6 @@ Page({
       success: res => {
         this.setData({
           locationAuthType: AUTHORIZED,
-          locationTipsText: AUTHORIZED_TIPS,
         })
         console.log(res.latitude, res.longitude)
         //腾讯地图接口根据本地(定位)经纬度逆地址解析城市
@@ -277,7 +268,6 @@ Page({
             //赋值城市和提示
             this.setData({
               city: city,
-              locationTipsText: ""
             })
 
             //重新获取并设置数据
@@ -301,7 +291,6 @@ Page({
         //改变标记及提示内容
         this.setData({
           locationAuthType: UNAUTHORIZED,
-          locationTipsText: UNAUTHORIZED_TIPS,
         })
 
 
