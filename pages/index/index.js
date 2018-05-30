@@ -17,6 +17,9 @@ const weatherColorMap = {
   'snow': '#aae1fc'
 }
 
+//常数变量(腾讯地图)
+const QQMapWX = require('../../libs/qqmap-wx-jssdk.js')
+
 Page({
   /**
    * 页面的初始数据//动态绑定数据(对应.wxml文件)
@@ -32,6 +35,10 @@ Page({
 
   //生命周期onLoad
   onLoad() {
+    // 实例化腾讯地图API核心类
+    this.qqmapsdk = new QQMapWX({
+      key: 'MJQBZ-V3K33-ZEY3B-YMHUZ-NB6OV-XVFG6'
+    })
     this.getNow()
     //this.getSX1()
     //this.getSX2()
@@ -39,9 +46,9 @@ Page({
   },
 
   //下拉刷新事件
-  onPullDownRefresh(){
+  onPullDownRefresh() {
     //传入匿名函数
-    this.getNow(()=>{
+    this.getNow(() => {
       wx.stopPullDownRefresh()
       console.log("停止下拉刷新")
     })
@@ -76,7 +83,7 @@ Page({
       },
     })
   },
-  getSX3(){
+  getSX3() {
     //微信get请求
     wx.request({
       //请求接口
@@ -92,7 +99,7 @@ Page({
 
 
   //获取服务器数据并设置视图的函数(callback:回调函数)
-  getNow(callback){
+  getNow(callback) {
     //微信get请求
     wx.request({
       //请求接口
@@ -114,7 +121,7 @@ Page({
       },
 
       //执行停止当前页面下拉刷新
-      complete: ()=>{
+      complete: () => {
         //callback不为空执行callb()
         callback && callback()
       }
@@ -123,7 +130,7 @@ Page({
   },
 
   //设置当前天气
-  setNow(result){
+  setNow(result) {
     //取出当前温度
     let temp = result.now.temp
     //取出当前天气
@@ -148,7 +155,7 @@ Page({
   },
 
   //设置未来24小时天气
-  setHourlyWeatherresult(result){
+  setHourlyWeatherresult(result) {
     /**设置forcast列表**/
     let forecast = result.forecast
     //获取当前小时
@@ -173,7 +180,7 @@ Page({
   },
 
   //设置今天的天气最低最高温
-  setToday(result){
+  setToday(result) {
     //获取当前时间
     let date = new Date()
     this.setData({
@@ -185,20 +192,44 @@ Page({
   },
 
   //按钮点击事件
-  onTapDayWeather(){
+  onTapDayWeather() {
     //跳转事件
     wx.navigateTo({
       url: '/pages/list/list',
     })
   },
 
-/**
- * 获取定位(经纬度)
- */
-  onTapLocation(){
+  /**
+   * 获取定位(经纬度)
+   */
+  onTapLocation() {
+    //微信接口获取本地(定位)经纬度
     wx.getLocation({
-      success: function(res) {
-        console.log(res.latitude,res.longitude)
+      success: res => {
+        console.log(res.latitude, res.longitude)
+        //腾讯地图接口根据本地(定位)经纬度逆地址解析城市
+        this.qqmapsdk.reverseGeocoder({
+          location: {
+            //经度
+            latitude: res.latitude,//31.23772,//
+            //纬度
+            longitude: res.longitude//121.47772 //
+          },
+          success: res => {
+            let city = res.result.address_component.city
+            console.log(city)
+            //吐司显示
+            wx.showToast({
+              title: city,
+              icon: 'succes',
+              duration: 1000,
+              mask: true
+            })
+
+          },
+
+        })
+
       },
     })
   },
