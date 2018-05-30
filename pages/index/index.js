@@ -217,7 +217,14 @@ Page({
   onTapLocation() {
     //判断标记进入不同逻辑
     if (this.data.locationAuthType === UNAUTHORIZED)
-      wx.openSetting()
+      wx.openSetting({
+        success: res => {
+          //判断用户是否已授权
+          if (res.authSetting['scope.userLocation']) {
+            this.getLocation()
+          }
+        }
+      })
     else
       this.getLocation()
   },
