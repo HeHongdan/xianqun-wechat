@@ -222,8 +222,8 @@ Page({
       this.getLocation()
   },
 
-    //获取(定位)经纬度
-    getLocation(){
+  //获取(定位)经纬度
+  getLocation() {
     //微信接口获取本地(定位)经纬度
     wx.getLocation({
       /** 获取定位成功 */
@@ -286,7 +286,7 @@ Page({
       },
 
     })
-    }
-  
+  }
+
 
 })
