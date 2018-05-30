@@ -18,7 +18,6 @@ const weatherColorMap = {
 }
 
 Page({
-
   /**
    * 页面的初始数据//动态绑定数据(对应.wxml文件)
    */
