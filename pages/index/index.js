@@ -51,10 +51,33 @@ Page({
     this.qqmapsdk = new QQMapWX({
       key: 'MJQBZ-V3K33-ZEY3B-YMHUZ-NB6OV-XVFG6'
     })
-    this.getNow()
-    //this.getSX1()
-    //this.getSX2()
-    //this.getSX3()
+
+    //获取设置定位状态
+    wx.getSetting({
+      success: res => {
+        let auth = res.authSetting['scope.userLocation']
+        this.setData({
+          //如果已授权定位(auth等于true)就locationAuthType赋值AUTHORIZED，否则再如果未授权定位(auth等于false)就locationAuthType赋值UNAUTHORIZED否则locationAuthType赋值UNPROMPTED
+          locationAuthType: auth ? AUTHORIZED : (auth === false) ? UNAUTHORIZED : UNPROMPTED,
+          //如果已授权定位就...
+          locationTipsText: auth ? AUTHORIZED_TIPS : (auth === false) ? UNAUTHORIZED_TIPS : UNPROMPTED_TIPS
+
+        })
+
+        //判断是否权限(授权后才重新获取定位并更新信息)
+        if (auth) {
+          this.getCityAndWeather()
+        } else {
+          this.getNow()
+          //this.getSX1()
+          //this.getSX2()
+          //this.getSX3()
+        }
+
+      }
+    })
+
+
   },
 
   //下拉刷新事件
@@ -216,21 +239,21 @@ Page({
    */
   onTapLocation() {
     //判断标记进入不同逻辑
-    if (this.data.locationAuthType === UNAUTHORIZED)
+    if (this.data.locationAuthType === UNAUTHORIZED) {
       wx.openSetting({
         success: res => {
-          //判断用户是否已授权
-          if (res.authSetting['scope.userLocation']) {
-            this.getLocation()
+          let auth = res.authSetting['scope.userLocation']
+          if (auth) {
+            this.getCityAndWeather()
           }
         }
       })
-    else
-      this.getLocation()
+    } else { this.getCityAndWeather() }
+
   },
 
-  //获取(定位)经纬度
-  getLocation() {
+  //获取城市(定位)和天气
+  getCityAndWeather() {
     //微信接口获取本地(定位)经纬度
     wx.getLocation({
       /** 获取定位成功 */
