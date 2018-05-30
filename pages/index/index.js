@@ -22,8 +22,8 @@ Page({
    * 页面的初始数据//动态绑定数据(对应.wxml文件)
    */
   data: {
-    nowTemp: '14℃',
-    nowWeather: '多云',
+    nowTemp: '100°',
+    nowWeather: '超时',
     nowWeatherBackground: '/images/sunny-bg.png',
     hourlyWeather: [],
     todayDate: "",
@@ -33,9 +33,9 @@ Page({
   //生命周期onLoad
   onLoad() {
     this.getNow()
-    this.getSX1()
-    this.getSX2()
-    this.getSX3()
+    //this.getSX1()
+    //this.getSX2()
+    //this.getSX3()
   },
 
   //下拉刷新事件
@@ -129,7 +129,7 @@ Page({
     //取出当前天气
     let weather = result.now.weather
 
-    console.log(temp, weather)
+    //console.log(temp, weather)
 
     //动态改变导航栏颜色
     wx.setNavigationBarColor({
@@ -140,7 +140,7 @@ Page({
     //异步改变显示内容
     this.setData({
       //字符拼接
-      nowTemp: temp + '℃',
+      nowTemp: temp + '°',
       //使用映射关系赋值
       nowWeather: weatherMap[weather],
       nowWeatherBackground: '/images/' + weather + '-bg.png'
@@ -190,6 +190,17 @@ Page({
     wx.navigateTo({
       url: '/pages/list/list',
     })
-  }
+  },
+
+/**
+ * 获取定位(经纬度)
+ */
+  onTapLocation(){
+    wx.getLocation({
+      success: function(res) {
+        console.log(res.latitude,res.longitude)
+      },
+    })
+  },
 
 })

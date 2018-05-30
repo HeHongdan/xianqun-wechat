@@ -6,7 +6,7 @@
   "window": {
     "backgroundTextStyle": "dark",
     "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "仙裙岛天气",
+    "navigationBarTitleText": "洪丹天气",
     "navigationBarTextStyle": "black",
     "enablePullDownRefresh": true
   }

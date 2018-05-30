@@ -44,6 +44,8 @@
   margin-top: 10rpx;
   /*文本(居中)对齐*/
   text-align: center;
+  font-size: 25rpx;
+  opacity: 0.5;
 }
 
 

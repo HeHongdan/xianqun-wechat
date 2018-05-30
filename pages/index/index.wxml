@@ -1,6 +1,7 @@
 <view class="weather-wrapper">
 
-  <view class="location-wrapper">
+   <!--获取定位的点击事件-->
+  <view class="location-wrapper" bindtap='onTapLocation'>
     <view class="location">
       <image class='location-icon' src='/images/location-icon.png'></image>
       <view class="location-text">广州市</view>
