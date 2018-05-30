@@ -1,4 +1,7 @@
-/*包装首页温度&天气的样式*/
+/**包装首页温度&天气的样式
+* width 750rpx, height 760rpx
+* 760=20+154+280+56+250
+*/
 .weather-wrapper {
   /*上边距*/
   padding-top: 20rpx;
@@ -8,7 +11,10 @@
   position: relative;
 }
 
-/*包装定位视图的样式*/
+/*包装定位视图的样式
+* height 154rpx
+* 154=42+10+42+60
+*/
 .location-wrapper{
   /*(下)外边距*/
   margin-bottom: 60rpx;
@@ -16,6 +22,8 @@
   font-size: 30rpx;
   /*行高*/
   line-height: 42rpx;
+  /*颜色(透明度)*/
+  color: rgba(0, 0, 0, 0.5)
 }
 /*定位视图的样式*/
 .location{
@@ -36,16 +44,15 @@
 }
 /*定位文本的样式*/
 .location-text{
-  /*透明度*/
-  opacity: 0.5;
 }
 /*定位提示的样式*/
 .location-tips{
   margin-top: 10rpx;
   /*文本(居中)对齐*/
   text-align: center;
+  /*固定高度, 没字时也有高度*/
+  height: 42rpx;
   font-size: 25rpx;
-  opacity: 0.5;
 }
 
 

@@ -1,13 +1,15 @@
 <view class="weather-wrapper">
 
-   <!--获取定位的点击事件-->
-  <view class="location-wrapper" bindtap='onTapLocation'>
+<!--获取定位的点击事件-->
+<view class="location-wrapper" bindtap='onTapLocation'>
     <view class="location">
-      <image class='location-icon' src='/images/location-icon.png'></image>
-      <view class="location-text">广州市</view>
+      <image class="location-icon" src="/images/location-icon.png"></image>
+      <view class="location-text">{{city}}</view>
     </view>
-    <view class="location-tips">点击获取当前位置</view>
+    <view class="location-tips">{{locationTipsText}}</view>
   </view>
+
+  <!--点击获取当前位置-->
 
   <!-- {{数据}}：动态绑定数据 -->
   <view class="temp">{{nowTemp}}</view>

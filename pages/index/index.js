@@ -31,6 +31,8 @@ Page({
     hourlyWeather: [],
     todayDate: "",
     todayTemp: "",
+    city:'广州市',
+    locationTipsText:"点击获取当前位置"
   },
 
   //生命周期onLoad
@@ -106,7 +108,7 @@ Page({
       url: 'https://test-miniprogram.com/api/weather/now',
       //请求参数
       data: {
-        city: '广州市'
+        city: this.data.city
       },
       //请求成功（箭头函数，参数：res）
       success: res => {
@@ -218,6 +220,15 @@ Page({
           success: res => {
             let city = res.result.address_component.city
             console.log(city)
+            //赋值城市和提示
+            this.setData({
+              city: city,
+              locationTipsText: ""
+            })
+
+            //重新获取并设置数据
+            this.getNow()
+
             //吐司显示
             wx.showToast({
               title: city,
