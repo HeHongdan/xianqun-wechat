@@ -1,7 +1,9 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/list/list"
+    "pages/list/list",
+    "pages/flutterHearts/flutterHearts",
+    "pages/waveimage/waveimage"
   ],
   "window": {
     "backgroundTextStyle": "dark",

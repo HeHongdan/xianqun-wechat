@@ -1,7 +1,7 @@
 {
 	"description": "项目配置文件。",
 	"setting": {
-		"urlCheck": true,
+		"urlCheck": false,
 		"es6": true,
 		"postcss": true,
 		"minified": true,
@@ -29,12 +29,24 @@
 			"list": []
 		},
 		"miniprogram": {
-			"current": -1,
+			"current": 2,
 			"list": [
 				{
 					"id": -1,
 					"name": "跳转第二页面",
 					"pathName": "pages/list/list",
+					"query": ""
+				},
+				{
+					"id": -1,
+					"name": "点赞动画",
+					"pathName": "pages/flutterHearts/flutterHearts",
+					"query": ""
+				},
+				{
+					"id": -1,
+					"name": "点赞动画2",
+					"pathName": "pages/waveimage/waveimage",
 					"query": ""
 				}
 			]
