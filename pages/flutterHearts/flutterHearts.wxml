@@ -1,0 +1,7 @@
+<view class='html'>
+  <view class='body'>
+    <view class='m'>
+      <image class="journal-reward" src="/images/reward.png" bindtap='onT'></image>
+    </view>
+  </view>
+</view>

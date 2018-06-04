@@ -1,11 +1,15 @@
 {
-  "pages":[
-    "pages/index/index"
+  "pages": [
+    "pages/index/index",
+    "pages/list/list",
+    "pages/flutterHearts/flutterHearts",
+    "pages/waveimage/waveimage"
   ],
-  "window":{
-    "backgroundTextStyle":"light",
+  "window": {
+    "backgroundTextStyle": "dark",
     "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "WeChat",
-    "navigationBarTextStyle":"black"
+    "navigationBarTitleText": "洪丹天气",
+    "navigationBarTextStyle": "black",
+    "enablePullDownRefresh": true
   }
 }

@@ -1,4 +1,171 @@
-.title {
-  margin-top:300rpx;
-  text-align:center;
+/**包装首页温度&天气的样式
+* width 750rpx, height 760rpx
+* 760=20+154+280+56+250
+*/
+.weather-wrapper {
+  /*上边距*/
+  padding-top: 20rpx;
+  /*下边距*/
+  padding-bottom: 250rpx;
+  /*相对定位*/
+  position: relative;
+}
+
+/*包装定位视图的样式
+* height 154rpx
+* 154=42+10+42+60
+*/
+.location-wrapper{
+  /*(下)外边距*/
+  margin-bottom: 60rpx;
+  /*字体大小*/
+  font-size: 30rpx;
+  /*行高*/
+  line-height: 42rpx;
+  /*颜色(透明度)*/
+  color: rgba(0, 0, 0, 0.5)
+}
+/*定位视图的样式*/
+.location{
+  /*显示框类型*/
+  display: flex;
+  /*主轴（横轴）方向上的对齐方式*/
+  justify-content: center;
+  /*居中对齐*/
+  align-items: center;
+}
+/*定位图标的样式*/
+.location-icon{
+  margin-right: 10rpx;
+  /*视图宽度*/
+  width: 21rpx;
+  /*视图高度*/
+  height: 30rpx;
+}
+/*定位文本的样式*/
+.location-text{
+}
+/*定位提示的样式*/
+.location-tips{
+  margin-top: 10rpx;
+  /*文本(居中)对齐*/
+  text-align: center;
+  /*固定高度, 没字时也有高度*/
+  height: 42rpx;
+  font-size: 25rpx;
+}
+
+
+/*首页底图的样式*/
+.weather-bg{
+  /*绝对定位*/
+  position: absolute;
+  /*绘制上部开始位置*/
+  top: 0;
+  /*绘制左边开始位置*/
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /*堆叠顺序 放兄弟视图底部*/
+  z-index: -1;
+}
+/*首页温度的样式*/
+.temp {
+  /*对齐方式*/
+  text-align: center;
+  font-size: 200rpx;
+  line-height: 280rpx;
+  opacity: 0.8;
+}
+/*首页天气的样式*/
+.weather {
+  text-align: center;
+  font-size: 40rpx;
+  line-height: 56rpx;
+  opacity: 0.65;
+}
+
+/*未来24小时天气的样式*/
+.timetips {
+  display: flex;
+  /*横方向对齐*/
+  justify-content: center;
+  align-items: center;
+  margin-top: 40rpx;
+  margin-bottom: 45rpx;
+}
+/*24小时左边图标*/
+.timetips-icon{
+  margin-right: 10rpx;
+  width: 36rpx;
+  height: 28rpx;
+}
+/*未来24小时天气文本的样式*/
+.timetips-text{
+  font-size: 30rpx;
+  line-height: 42rpx;
+  opacity: 0.5;
+}
+/*并列视图的样式(横向)*/
+.forecast-list{
+  display: flex;
+}
+/*并列项目的样式*/
+.forecast-item{
+  display: flex;
+  /*项目方向(横)*/
+  flex-direction: column;
+  /*项目不压缩显示*/
+  flex-shrink: 0;
+  width: 120rpx;
+  align-items: center;
+}
+
+/*未来天气时间的样式*/
+.forecast-time{
+  font-size: 30rpx;
+  line-height: 42rpx;
+}
+/*未来天气图标的样式*/
+.forecast-weather{
+  margin-top: 50rpx;
+  width: 60rpx;
+  height: 60rpx;
+}
+/*未来天气文本的样式*/
+.forecast-temp{
+  margin-top: 46rpx;
+  font-size: 40rpx;
+  line-height: 56rpx;
+}
+
+/*今天天气(最低最高)的样式*/
+.day-weather{
+  display: flex;
+  align-items: center;
+  position: absolute;
+  bottom: 0;
+  left: 40rpx;
+  right: 40rpx;
+  height: 90rpx;
+  /*透明上边框*/
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 30rpx;
+  line-height: 42rpx;
+  opacity: 0.5;
+}
+.day-text{
+
+}
+/*今天日期的样式*/
+.time-text{
+  /*扩展比率*/
+  flex-grow: 1;
+  padding-right: 30rpx;
+  text-align: right;
+}
+/*箭头(今天)的样式*/
+.arrow-icon{
+  width: 13rpx;
+  height: 24rpx;
 }
