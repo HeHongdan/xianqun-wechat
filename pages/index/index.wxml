@@ -32,8 +32,8 @@
      <view class='time-text'>{{todayTemp}}</view>
      <image class='arrow-icon' src='/images/arrow.png'></image>
   </view>
- 
 
+<!-- <button class="unlogin-btn" open-type='getUserInfo' bindgetuserinfo='onTapLogin'>微信登录</button> -->
 
 </view>
 

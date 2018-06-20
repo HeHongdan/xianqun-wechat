@@ -1,3 +1,5 @@
+const app = getApp()
+
 const day = []
 
 //字符映射关系
@@ -23,6 +25,8 @@ const weatherColorMap = {
 const QQMapWX = require('../../libs/qqmap-wx-jssdk.js')
 //常数变量(解析xml)
 var Parser = require('../../libs/xmldom/dom-parser.js')
+//常数变量(解析xml)
+//var Json3 = require('../../libs/json3.js')
 
 //常数变量(标记定位权限)
 const UNPROMPTED = 0
@@ -34,14 +38,52 @@ Page({
    * 页面的初始数据//动态绑定数据(对应.wxml文件)
    */
   data: {
-    nowTemp: '・ω・',//•́ ₃ •̀'
+    nowTemp: '・ω・', //•́ ₃ •̀'
     nowWeather: '加载中',
     nowWeatherBackground: '/images/sunny-bg.png',
     hourlyWeather: [],
     todayDate: "",
     todayTemp: "",
     city: '广州市',
-    locationAuthType: UNPROMPTED, UNAUTHORIZED, AUTHORIZED
+    locationAuthType: UNPROMPTED,
+    UNAUTHORIZED,
+    AUTHORIZED
+  },
+
+  /**点击登陆*/
+  onTapLogin() {
+    app.login({
+      success: ({
+        userInfo
+      }) => {
+        console.log("用户信息=" + userInfo)
+
+        //吐司显示
+        wx.showToast({
+          icon: 'none',
+          title: '用户信息=' + userInfo.nickName + userInfo.avatarUrl
+        })
+
+        this.setData({
+          userInfo
+        })
+      }
+    })
+  },
+
+  /**
+   * 生命周期函数--监听页面显示
+   */
+  onShow: function() {
+    app.checkSession({
+      success: ({
+        userInfo
+      }) => {
+        this.setData({
+          userInfo
+        })
+      }
+    });
   },
 
   //生命周期onLoad
@@ -204,7 +246,9 @@ Page({
           }
         }
       })
-    } else { this.getCityAndWeather() }
+    } else {
+      this.getCityAndWeather()
+    }
 
   },
 
@@ -222,9 +266,9 @@ Page({
         this.qqmapsdk.reverseGeocoder({
           location: {
             //经度
-            latitude: res.latitude,//31.23772,//
+            latitude: res.latitude, //31.23772,//
             //纬度
-            longitude: res.longitude//121.47772 //
+            longitude: res.longitude //121.47772 //
           },
           success: res => {
             let city = res.result.address_component.city
@@ -285,52 +329,115 @@ Page({
         for (var i = 0; i < divs.length; i++) {
           //返回指定属性名（class）的属性值
           var classV1 = divs[i].getAttribute("class");
-          if (classV1 == "weather_7d") {//L_weather
-            var weather_7d = doc.getElementsByTagName("div")[i];//doc
-            var divsWeather_7d = weather_7d.getElementsByTagName("div");//divs
+          if (classV1 == "weather_7d") { //L_weather
+            var weather_7d = doc.getElementsByTagName("div")[i]; //doc
+            var divsWeather_7d = weather_7d.getElementsByTagName("div"); //divs
             for (var j = 0; j < divsWeather_7d.length; j++) {
               var classV2 = divsWeather_7d[j].getAttribute("class");
-              if (classV2 == "blueFor-container") {//todayRight
-                var container = weather_7d.getElementsByTagName("div")[j];//doc
+              if (classV2 == "blueFor-container") { //todayRight
+                var container = weather_7d.getElementsByTagName("div")[j]; //doc
                 //console.log('仙裙' + container)
 
-                var scriptWeather = weather_7d.getElementsByTagName("script");//divs
+                var scriptWeather = weather_7d.getElementsByTagName("script"); //divs
                 for (var k = 0; k < scriptWeather.length; k++) {
                   var classV3 = scriptWeather[k].getAttribute("class");
-                  if (classV3 == "" && k== 0) {
+                  if (classV3 == "" && k == 0) {
                     //这是一字符串 
                     var today = container.getElementsByTagName("script")[k].toString();
 
                     var wS = today.indexOf("var");
-                    var wE = today.indexOf(";");
-                    var today1 = today.substr(wS, (wE - wS + 1));
-                    console.log('仙裙' + today1);
+                    var wE = today.indexOf(";") + 1;
+                    var today1 = today.substr(wS, (wE - wS));
+                    //console.log('仙裙' + today1);
 
-                    var t2_ = today.substr((wE+1), today.length);
+                    var wS_name1_1 = today1.indexOf("var ") + 4;
+                    var wE_name1_1 = today1.indexOf(" = [[{\"");
+                    var name1_1 = today1.substr(wS_name1_1, (wE_name1_1 - wS_name1_1));
+                    var wS_json1_1 = today1.indexOf("[[{\"");
+                    var wE_json1_1 = today1.indexOf("}]];") + 3;
+                    var json1_1 = today1.substr(wS_json1_1, (wE_json1_1 - wS_json1_1));
+                    var obj1 = JSON.parse(json1_1);
+                    var obj1_1 = obj1[0];
+
+                    console.log(' ');
+                    var obj1Length = obj1.length;
+                    console.log('[仙裙]预报天数=' + obj1Length);
+                    for (var i = 0; i < obj1Length; i++) {
+                      var obj1_1 = obj1[i];
+                      var obj1_1Length = obj1_1.length;
+                      console.log('[仙裙]第' + (i + 1) + '天时间节点长度=' + obj1_1Length);
+                      for (var j = 0; j < obj1_1Length; j++) {
+                        var obj1_1_1 = obj1_1[j];
+                        //ja：天气（02阴、07小雨）
+                        var ja = obj1_1_1.ja;
+                        //jb：温度（）
+                        var jb = obj1_1_1.jb;
+                        //jc：风力（0 <3级、1 3-4级）
+                        var jc = obj1_1_1.jc;
+                        //jd：风向（4南风、5西南风）
+                        var jd = obj1_1_1.jd;
+                        //jf：年月日时
+                        var jf = obj1_1_1.jf;
+
+
+                        console.log(
+                          '[仙裙]年月日时 =' + jf +
+                          '，天气=' + ja +
+                          '，温度=' + jb +
+                          '，风力=' + jc +
+                          '，风向=' + jd
+                        );
+                      }
+                    }
+
+
+
+                    //console.log('[仙裙]第一个转字符串= ' + obj1_1.toJSONString());
+
+                    /*
+                    //console.log('仙裙 名称=' + today1_name);
+                    //JSON要解析的对象
+                    var obj1 = JSON.parse(today1_json);
+                    //var obj1 = today1_json.parseJSON();
+                    console.log(today1_name + ' = ' + obj1);*/
+
+                    var t2_ = today.substr((wE + 1), today.length);
                     var wS2 = t2_.indexOf("var");
-                    var wE2 = t2_.indexOf(";");
-                    var t2 = t2_.substr(wS2, (wE2 - wS2 + 1));
-                    console.log('仙裙t2' + t2);
+                    var wE2 = t2_.indexOf(";") + 1;
+                    var t2 = t2_.substr(wS2, (wE2 - wS2));
+
+                    var wS2_name = t2_.indexOf("var ") + 4;
+                    var wE2_name = t2_.indexOf(" = [\"");
+                    var t2_name = t2_.substr((wS2_name), (wE2_name - wS2_name));
+
+                    var wS2_json = t2_.indexOf("[\"");
+                    var wE2_json = t2_.indexOf("];") + 1;
+                    var t2_json = t2_.substr(wS2_json, (wE2_json - wS2_json));
+                    var obj2 = JSON.parse(t2_json);
 
                     var t3 = t2_.substr((wE2 + 1), t2_.length);
+
                     var wS3 = t3.indexOf("var");
-                    var wE3 = t3.indexOf(";");
-                    var t3 = t3.substr(wS3, (wE3 - wS3 + 1));
-                    console.log('仙裙t3' + t3);
+                    var wE3 = t3.indexOf(";") + 1;
+                    var t3 = t3.substr(wS3, (wE3 - wS3));
+
+                    console.log(t2_name + ' = ' + obj2);
+                    console.log('[仙裙]白天气温=' + t2);
+                    console.log('[仙裙]夜间气温=' + t3);
 
 
-                    //console.log(k + '仙裙' + today.textContent)
+                    //console.log(k + '[仙裙]' + today.textContent)
                     //定义一数组 
-                    var strs = new Array(); 
+                    var strs = new Array();
                     //字符分割
-                    strs = today.split("}"); 
+                    strs = today.split("}");
                     //将符串分割成一个数组
                     //var day = today.split(",");//day
                     for (i = 0; i < strs.length; i++) {
                       //console.log('仙裙' + strs[i])
                     }
-                     
-                    
+
+
                   }
                 }
               }
@@ -339,10 +446,6 @@ Page({
 
 
         }
-
-
-
-
 
 
       }
@@ -408,7 +511,8 @@ Page({
                     var todayCharts = doc.getElementsByTagName("div")[k];
 
                     //同时设几个变量(数组，全部html，时间，天气，风向，风力)
-                    var data = [], html, time, housr_icons_w, wind, windL;
+                    var data = [],
+                      html, time, housr_icons_w, wind, windL;
                     var weatherALL = todayCharts.getElementsByTagName('ul')[0];
                     var weatherALLs = weatherALL.getElementsByTagName('li');
                     //打印标签之间的内容，包括标签和文本信息
