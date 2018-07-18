@@ -326,7 +326,7 @@ Page({
           for (var i = 0; i < dayWeatherArray.length; i++) {
             //console.log('[仙裙] 回调数组' + data[i].date);
             weatherDay = dayWeatherArray[i];
-            //weatherDayBean.create(ad.date, tempDay, tempNight, weather1, weather2, wind1, wind2, windForce);
+            //weatherDayBean.createDay(ad.date, tempDay, tempNight, weather1, weather2, wind1, wind2, windForce);
             // console.log('[仙裙] 回调数组：时间=' + weatherDay.date +
             //         '，天气1=' + weatherDay.weather1 +
             //         '，天气2=' + weatherDay.weather2 +
@@ -335,13 +335,13 @@ Page({
             //         '，风向1=' + weatherDay.wind1 +
             //         '，风向2=' + weatherDay.wind2 +
             //         '，风力=' + weatherDay.windForce);
-            weatherDayBean.add(queryWeatherDay, weatherDay);
+            //weatherDayBean.addDay(queryWeatherDay, weatherDay);
             console.log('[仙裙] 回调数组：天=' + JSON.stringify(weatherDay));
           }
 
           for (var j = 0; j < hourWeatherArray.length; j++) {
             weatherHour = hourWeatherArray[j];
-            weatherHourBean.add(queryWeatherHour, weatherHour);
+            //weatherHourBean.addHour(queryWeatherHour, weatherHour);
             console.log('[仙裙] 回调数组：小时=' + JSON.stringify(weatherHour));
           }
 
