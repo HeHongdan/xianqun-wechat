@@ -1,42 +1,44 @@
-const app = getApp()
+/** 
+ * 解析XML天气数据（中国天气网）
+ * 
+ * 何洪丹
+ * 20180710
+ */
 
-const day = []
-
+//导入模块（解析天气工具）
+import { parseWeather } from '../../utils/parseWeather.js';
+/**引用外部的js文件*/
+//小时天气bean
+var weatherHourBean = require('../../bean/WeatherHour.js');
+//天天气bean
+var weatherDayBean = require('../../bean/WeatherDay.js');
+//自定义地图工具
+var customMapUtil = require('../../utils/customMap.js');
 //字符映射关系
-const weatherMap = {
-  'sunny': '晴天',
-  'cloudy': '多云',
-  'overcast': '阴',
-  'lightrain': '小雨',
-  'heavyrain': '大雨',
-  'snow': '雪'
-}
-
-const weatherColorMap = {
-  'sunny': '#cbeefd',
-  'cloudy': '#deeef6',
-  'overcast': '#c6ced2',
-  'lightrain': '#bdd5e1',
-  'heavyrain': '#c5ccd0',
-  'snow': '#aae1fc'
-}
-
+var mapUtil = require('../../utils/map.js');
+//获取Bmob实例
+var Bmob = require('../../libs/bmob/Bmob-1.6.1.min.js');
 //常数变量(腾讯地图)
-const QQMapWX = require('../../libs/qqmap-wx-jssdk.js')
+var QQMapWX = require('../../libs/qqmap-wx-jssdk.js');
 //常数变量(解析xml)
-var Parser = require('../../libs/xmldom/dom-parser.js')
-//常数变量(解析xml)
-//var Json3 = require('../../libs/json3.js')
+var Parser = require('../../libs/xmldom/dom-parser.js');
 
 //常数变量(标记定位权限)
-const UNPROMPTED = 0
-const UNAUTHORIZED = 1
-const AUTHORIZED = 2
+const UNPROMPTED = 0;
+const UNAUTHORIZED = 1;
+const AUTHORIZED = 2;
+//导入（获取）App对象
+const app = getApp();
+//江洪镇天气网址（中国天气网）
+const weatherUrlJiangHong = 'http://forecast.weather.com.cn/town/weathern/101281007009.shtml';
+//获取天气服务器（优达）
+const weatherUrlUdacity = 'https://test-miniprogram.com/api/weather/now';
+/** 用户填写照片米数 */
+var remainder = 520;
+
 
 Page({
-  /**
-   * 页面的初始数据//动态绑定数据(对应.wxml文件)
-   */
+  //页面的初始数据//动态绑定数据(对应.wxml文件)
   data: {
     nowTemp: '・ω・', //•́ ₃ •̀'
     nowWeather: '加载中',
@@ -44,99 +46,48 @@ Page({
     hourlyWeather: [],
     todayDate: "",
     todayTemp: "",
-    city: '广州市',
+    city: '仙裙岛',
     locationAuthType: UNPROMPTED,
     UNAUTHORIZED,
     AUTHORIZED
   },
 
-  /**点击登陆*/
-  onTapLogin() {
-    app.login({
-      success: ({
-        userInfo
-      }) => {
-        console.log("用户信息=" + userInfo)
+  /**
+   * 生命周期onLoad
+   */
+  onLoad() {
+    //QQMapWX获取位置信息
+    this.getLocationByQQMapWX();
+    //获取定位信息计算照片距离
+    this.getLocation(remainder);
+    //获取天气来自中国天气网
+    this.getWeatherComCn(weatherUrlJiangHong);
+    //测试Bmob数据库
+    //this.getBmobData();
+  },
 
-        //吐司显示
-        wx.showToast({
-          icon: 'none',
-          title: '用户信息=' + userInfo.nickName + userInfo.avatarUrl
-        })
-
-        this.setData({
-          userInfo
-        })
-      }
+  /**
+   * 下拉刷新事件
+   */
+  onPullDownRefresh() {
+    //传入匿名函数
+    this.getNow(weatherUrlUdacity, () => {
+      //停止当前页面下拉刷新
+      wx.stopPullDownRefresh()
     })
   },
 
   /**
-   * 生命周期函数--监听页面显示
+   * 获取服务器数据并设置视图的函数
+   * 
+   * @param {*} url 天气Url
+   * @param {*} callback 传入回调函数
    */
-  onShow: function() {
-    app.checkSession({
-      success: ({
-        userInfo
-      }) => {
-        this.setData({
-          userInfo
-        })
-      }
-    });
-  },
-
-  //生命周期onLoad
-  onLoad() {
-
-    //获取天气来自中国天气网
-    this.getWeatherComCn();
-
-    // 实例化腾讯地图API核心类
-    this.qqmapsdk = new QQMapWX({
-      key: 'MJQBZ-V3K33-ZEY3B-YMHUZ-NB6OV-XVFG6'
-    });
-
-    //获取设置定位状态
-    wx.getSetting({
-      success: res => {
-        let auth = res.authSetting['scope.userLocation']
-        this.setData({
-          //如果已授权定位(auth等于true)就locationAuthType赋值AUTHORIZED，否则再如果未授权定位(auth等于false)就locationAuthType赋值UNAUTHORIZED否则locationAuthType赋值UNPROMPTED
-          locationAuthType: auth ? AUTHORIZED : (auth === false) ? UNAUTHORIZED : UNPROMPTED,
-        })
-
-        //判断是否权限(授权后才重新获取定位并更新信息)
-        if (auth) {
-          this.getCityAndWeather()
-        } else {
-          this.getNow()
-          //this.getSX1()
-          //this.getSX2()
-          //this.getSX3()
-        }
-
-      }
-    });
-
-
-  },
-
-  //下拉刷新事件
-  onPullDownRefresh() {
-    //传入匿名函数
-    this.getNow(() => {
-      wx.stopPullDownRefresh()
-      //console.log("停止下拉刷新")
-    })
-  },
-
-  //获取服务器数据并设置视图的函数(callback:回调函数)
-  getNow(callback) {
+  getNow(url, callback) {
     //微信get请求
     wx.request({
       //请求接口
-      url: 'https://test-miniprogram.com/api/weather/now',
+      url: url,
       //请求参数
       data: {
         city: this.data.city
@@ -153,16 +104,19 @@ Page({
         this.setToday(result)
       },
 
-      //执行停止当前页面下拉刷新
+      //执行回调函数
       complete: () => {
         //callback不为空执行callb()
         callback && callback()
       }
-
     })
   },
 
-  //设置当前天气
+  /**
+   * 设置当前天气及视图状态
+   * 
+   * @param {*} result 天气结果
+   */
   setNow(result) {
     //取出当前温度
     let temp = result.now.temp
@@ -174,7 +128,7 @@ Page({
     //动态改变导航栏颜色
     wx.setNavigationBarColor({
       frontColor: '#000000',
-      backgroundColor: weatherColorMap[weather],
+      backgroundColor: mapUtil.weatherColorMap[weather],
     })
 
     //异步改变显示内容
@@ -182,12 +136,16 @@ Page({
       //字符拼接
       nowTemp: temp + '°',
       //使用映射关系赋值
-      nowWeather: weatherMap[weather],
+      nowWeather: mapUtil.weatherMap_[weather],
       nowWeatherBackground: '/images/' + weather + '-bg.png'
     })
   },
 
-  //设置未来24小时天气
+  /**
+   * 设置未来24小时天气
+   * 
+   * @param {*} result 天气结果
+   */
   setHourlyWeatherresult(result) {
     /**设置forcast列表**/
     let forecast = result.forecast
@@ -212,7 +170,10 @@ Page({
     })
   },
 
-  //设置今天的天气最低最高温
+  /**
+   * 设置今天的天气最低最高温
+   * @param {*} result 天气结果
+   */
   setToday(result) {
     //获取当前时间
     let date = new Date()
@@ -224,7 +185,9 @@ Page({
     })
   },
 
-  //按钮点击事件
+  /**
+   * 按钮事件（跳转页面）
+   */
   onTapDayWeather() {
     //跳转事件
     wx.navigateTo({
@@ -252,8 +215,256 @@ Page({
 
   },
 
-  //获取城市(定位)和天气
+  /**
+   * 获取定位信息计算照片距离(江洪)
+   * 
+   * @param {*} remainder 照片与江洪客运站的距离
+   */
+  getLocation(remainder) {
+    wx.getLocation({
+      type: 'wgs84',
+      success: function (res) {
+        var latitude = res.latitude
+        var longitude = res.longitude
+        //距离计算
+        var cMU = customMapUtil.calculateDistance(customMapUtil.latitude, customMapUtil.longitude, latitude, longitude);
+        console.log("自定义计算距离=" + cMU);
+        console.log("经度=" + longitude + "1纬度=" + latitude)
+        //吐司显示
+        wx.showToast({
+          title: Math.round(cMU / 1000) + "公里+" + remainder + "米",
+          duration: 5000,
+          mask: true
+        })
+      }
+    });
+  },
+
+  /**
+   * 根据QQMapWX位置信息获取天气（伪数据）
+   */
+  getLocationByQQMapWX() {
+    // 实例化腾讯地图API核心类（建议调到APP.js）
+    this.qqmapsdk = new QQMapWX({
+      key: 'MJQBZ-V3K33-ZEY3B-YMHUZ-NB6OV-XVFG6'
+    });
+    //地址解析（地址转坐标）
+    // this.qqmapsdk.geocoder({
+    //   address: '广东省湛江市遂溪县仙裙岛',
+    //   success: function (res) {
+    //     console.log(res);
+    //   },
+    //   fail: function (res) {
+    //     console.log(res);
+    //   },
+    //   complete: function (res) {
+    //     console.log(res);
+    //   }
+    // });
+
+    //
+    // this.qqmapsdk.reverseGeocoder({
+    //   location: {
+    //     latitude: 21.030784,
+    //     longitude: 109.707853
+    //   },
+    //   success: function (res) {
+    //     console.log(res);
+    //   },
+    //   fail: function (res) {
+    //     console.log(res);
+    //   },
+    //   complete: function (res) {
+    //     console.log(res);
+    //   }
+    // });
+
+    /**
+     * 获取设置定位状态
+     */
+    wx.getSetting({
+      success: res => {
+        let auth = res.authSetting['scope.userLocation']
+        this.setData({
+          //如果已授权定位(auth等于true)就locationAuthType赋值AUTHORIZED，否则再如果未授权定位(auth等于false)就locationAuthType赋值UNAUTHORIZED否则locationAuthType赋值UNPROMPTED
+          locationAuthType: auth ? AUTHORIZED : (auth === false) ? UNAUTHORIZED : UNPROMPTED,
+        })
+        //判断是否权限(授权后才重新获取定位并更新信息)
+        if (auth) {
+          this.getCityAndWeather()
+        } else {
+          this.getNow(weatherUrlUdacity)
+        }
+
+      }
+    });
+  },
+
+  /**
+   * 获取中国天气网(江洪)
+   */
+  getWeatherComCn(url) {
+    var XMLParser = new Parser.DOMParser();
+
+    wx.request({
+      //请求接口
+      url: url,
+      //请求成功（箭头函数，参数：res）
+      success: res => {
+        //weatherUtil.parse(XMLParser, res, WDB).date;
+
+        parseWeather(XMLParser, res, function (dayWeatherArray, hourWeatherArray) {
+          //添加天天气的工具（Bmob）
+          const queryWeatherDay = Bmob.Query('WeatherDay');
+          //添加小时天气的工具（Bmob）
+          const queryWeatherHour = Bmob.Query('WeatherHour');
+          //缓存一天天气
+          var weatherDay;
+          //缓存一小时天气
+          var weatherHour;
+
+          for (var i = 0; i < dayWeatherArray.length; i++) {
+            //console.log('[仙裙] 回调数组' + data[i].date);
+            weatherDay = dayWeatherArray[i];
+            //weatherDayBean.create(ad.date, tempDay, tempNight, weather1, weather2, wind1, wind2, windForce);
+            // console.log('[仙裙] 回调数组：时间=' + weatherDay.date +
+            //         '，天气1=' + weatherDay.weather1 +
+            //         '，天气2=' + weatherDay.weather2 +
+            //         '，温度1=' + weatherDay.tempDay +
+            //         '，温度2=' + weatherDay.tempNight +
+            //         '，风向1=' + weatherDay.wind1 +
+            //         '，风向2=' + weatherDay.wind2 +
+            //         '，风力=' + weatherDay.windForce);
+            weatherDayBean.add(queryWeatherDay, weatherDay);
+            console.log('[仙裙] 回调数组：天=' + JSON.stringify(weatherDay));
+          }
+
+          for (var j = 0; j < hourWeatherArray.length; j++) {
+            weatherHour = hourWeatherArray[j];
+            weatherHourBean.add(queryWeatherHour, weatherHour);
+            console.log('[仙裙] 回调数组：小时=' + JSON.stringify(weatherHour));
+          }
+
+
+
+          wx.showToast({
+            title: "回调处理 " + dayWeatherArray,
+            duration: 5000,
+            mask: true
+          })
+        });
+
+      }
+    });
+  },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /**点击登陆*/
+  onTapLogin() {
+    app.login({
+      success: ({
+        userInfo
+      }) => {
+        console.log("用户信息=" + userInfo)
+
+        //吐司显示
+        wx.showToast({
+          icon: 'none',
+          title: '用户信息=' + userInfo.nickName + userInfo.avatarUrl
+        })
+
+        this.setData({
+          userInfo
+        })
+      }
+    })
+  },
+
+  /**
+   * 生命周期函数--监听页面显示
+   */
+  onShow: function () {
+    //登录
+    // app.checkSession({
+    //   success: ({
+    //     userInfo
+    //   }) => {
+    //     this.setData({
+    //       userInfo
+    //     })
+    //   }
+    // });
+  },
+
+  /**
+   * 获取城市(定位)和天气（伪数据）
+  */
   getCityAndWeather() {
+    //纬度
+    //var lat;
+    //经度
+    //var lng;
+
     //微信接口获取本地(定位)经纬度
     wx.getLocation({
       /** 获取定位成功 */
@@ -261,7 +472,8 @@ Page({
         this.setData({
           locationAuthType: AUTHORIZED,
         })
-        //console.log(res.latitude, res.longitude)
+        //lat = res.latitude;
+        //lng = res.longitude;
         //腾讯地图接口根据本地(定位)经纬度逆地址解析城市
         this.qqmapsdk.reverseGeocoder({
           location: {
@@ -272,6 +484,12 @@ Page({
           },
           success: res => {
             let city = res.result.address_component.city
+
+            //距离计算
+            //var cMU = customMapUtil.calculateDistance(21.03079, 109.707848, lat, lng);
+            //console.log("自定义计算距离=" + cMU);
+            //console.log("经度=" + lng + "纬度=" + lat)
+
             //console.log(city)
             //赋值城市和提示
             this.setData({
@@ -279,15 +497,15 @@ Page({
             })
 
             //重新获取并设置数据
-            this.getNow()
+            this.getNow(weatherUrlUdacity)
 
             //吐司显示
-            wx.showToast({
-              title: city,
-              icon: 'succes',
-              duration: 1000,
-              mask: true
-            })
+            // wx.showToast({
+            //   title: city,
+            //   icon: 'succes',
+            //   duration: 1000,
+            //   mask: true
+            // })
 
           },
         })
@@ -302,7 +520,6 @@ Page({
         })
 
 
-
         //吐司显示
         wx.showToast({
           title: "定位失败",
@@ -315,303 +532,134 @@ Page({
     })
   },
 
+  /**
+   * 测试Bmob增删改查
+   */
+  getBmobData() {
+    //Bmob----------------------------------------------------------------------
+    //注册
+    // let params = {
+    //   username: '何洪丹',
+    //   password: 'hehongdan',
+    //   email: 'hehongdan@126.com',
+    //   phone: '18022647864',
+    // }
+    // Bmob.User.register(params).then(res => {
+    //   console.log('Bmob注册成功=')
+    //   console.log(res)
+    // }).catch(err => {
+    //   console.log('Bmob注册失败=')
+    //   console.log(err)
+    // });
+    //登陆
+    Bmob.User.login('何洪丹', 'hehongdan').then(res => {
+      console.log('Bmob登录成功=')
+      console.log(res)
+    }).catch(err => {
+      console.log('Bmob登录失败=')
+      console.log(err)
+    });
+    /** 更新用户缓存 */
+    // Bmob.User.updateStorage('objectId').then(res => {
+    //   console.log(res)
+    // }).catch(err => {
+    //   console.log(err)
+    // });
+    /** 验证 Email */
+    // Bmob.User.requestEmailVerify('bmob2018@bmob.cn').then(res => {
+    //   console.log(res)
+    // }).catch(err => {
+    //   console.log(err)
+    // });
 
-  getWeatherComCn() {
-    var XMLParser = new Parser.DOMParser();
-    wx.request({
-      //请求接口
-      url: 'http://forecast.weather.com.cn/town/weathern/101281007009.shtml',
-      //请求成功（箭头函数，参数：res）
-      success: res => {
-        var doc = XMLParser.parseFromString(res.data);
-        var divs = doc.getElementsByTagName("div");
+    /** 密码重置 */
+    // let data = {
+    //   email: 'hehongdan@126.com'
+    // }
+    // Bmob.requestPasswordReset(data).then(res => {
+    //   console.log(res)
+    // }).catch(err => {
+    //   console.log(err)
+    // });
 
-        for (var i = 0; i < divs.length; i++) {
-          //返回指定属性名（class）的属性值
-          var classV1 = divs[i].getAttribute("class");
-          if (classV1 == "weather_7d") { //L_weather
-            var weather_7d = doc.getElementsByTagName("div")[i]; //doc
-            var divsWeather_7d = weather_7d.getElementsByTagName("div"); //divs
-            for (var j = 0; j < divsWeather_7d.length; j++) {
-              var classV2 = divsWeather_7d[j].getAttribute("class");
-              if (classV2 == "blueFor-container") { //todayRight
-                var container = weather_7d.getElementsByTagName("div")[j]; //doc
-                //console.log('仙裙' + container)
-
-                var scriptWeather = weather_7d.getElementsByTagName("script"); //divs
-                for (var k = 0; k < scriptWeather.length; k++) {
-                  var classV3 = scriptWeather[k].getAttribute("class");
-                  if (classV3 == "" && k == 0) {
-                    //这是一字符串 
-                    var today = container.getElementsByTagName("script")[k].toString();
-
-                    var wS = today.indexOf("var");
-                    var wE = today.indexOf(";") + 1;
-                    var today1 = today.substr(wS, (wE - wS));
-                    //console.log('仙裙' + today1);
-
-                    var wS_name1_1 = today1.indexOf("var ") + 4;
-                    var wE_name1_1 = today1.indexOf(" = [[{\"");
-                    var name1_1 = today1.substr(wS_name1_1, (wE_name1_1 - wS_name1_1));
-                    var wS_json1_1 = today1.indexOf("[[{\"");
-                    var wE_json1_1 = today1.indexOf("}]];") + 3;
-                    var json1_1 = today1.substr(wS_json1_1, (wE_json1_1 - wS_json1_1));
-                    var obj1 = JSON.parse(json1_1);
-                    var obj1_1 = obj1[0];
-
-                    console.log(' ');
-                    var obj1Length = obj1.length;
-                    console.log('[仙裙]预报天数=' + obj1Length);
-                    for (var i = 0; i < obj1Length; i++) {
-                      var obj1_1 = obj1[i];
-                      var obj1_1Length = obj1_1.length;
-                      console.log('[仙裙]第' + (i + 1) + '天时间节点长度=' + obj1_1Length);
-                      for (var j = 0; j < obj1_1Length; j++) {
-                        var obj1_1_1 = obj1_1[j];
-                        //ja：天气（02阴、07小雨）
-                        var ja = obj1_1_1.ja;
-                        //jb：温度（）
-                        var jb = obj1_1_1.jb;
-                        //jc：风力（0 <3级、1 3-4级）
-                        var jc = obj1_1_1.jc;
-                        //jd：风向（4南风、5西南风）
-                        var jd = obj1_1_1.jd;
-                        //jf：年月日时
-                        var jf = obj1_1_1.jf;
-
-
-                        console.log(
-                          '[仙裙]年月日时 =' + jf +
-                          '，天气=' + ja +
-                          '，温度=' + jb +
-                          '，风力=' + jc +
-                          '，风向=' + jd
-                        );
-                      }
-                    }
-
-
-
-                    //console.log('[仙裙]第一个转字符串= ' + obj1_1.toJSONString());
-
-                    /*
-                    //console.log('仙裙 名称=' + today1_name);
-                    //JSON要解析的对象
-                    var obj1 = JSON.parse(today1_json);
-                    //var obj1 = today1_json.parseJSON();
-                    console.log(today1_name + ' = ' + obj1);*/
-
-                    var t2_ = today.substr((wE + 1), today.length);
-                    var wS2 = t2_.indexOf("var");
-                    var wE2 = t2_.indexOf(";") + 1;
-                    var t2 = t2_.substr(wS2, (wE2 - wS2));
-
-                    var wS2_name = t2_.indexOf("var ") + 4;
-                    var wE2_name = t2_.indexOf(" = [\"");
-                    var t2_name = t2_.substr((wS2_name), (wE2_name - wS2_name));
-
-                    var wS2_json = t2_.indexOf("[\"");
-                    var wE2_json = t2_.indexOf("];") + 1;
-                    var t2_json = t2_.substr(wS2_json, (wE2_json - wS2_json));
-                    var obj2 = JSON.parse(t2_json);
-
-                    var t3 = t2_.substr((wE2 + 1), t2_.length);
-
-                    var wS3 = t3.indexOf("var");
-                    var wE3 = t3.indexOf(";") + 1;
-                    var t3 = t3.substr(wS3, (wE3 - wS3));
-
-                    console.log(t2_name + ' = ' + obj2);
-                    console.log('[仙裙]白天气温=' + t2);
-                    console.log('[仙裙]夜间气温=' + t3);
-
-
-                    //console.log(k + '[仙裙]' + today.textContent)
-                    //定义一数组 
-                    var strs = new Array();
-                    //字符分割
-                    strs = today.split("}");
-                    //将符串分割成一个数组
-                    //var day = today.split(",");//day
-                    for (i = 0; i < strs.length; i++) {
-                      //console.log('仙裙' + strs[i])
-                    }
-
-
-                  }
-                }
-              }
-            }
-          }
-
-
+    /** 新增一行记录 */
+    const query = Bmob.Query('WeatherDay');
+    query.set("date", "20180000")
+    query.set("tempDay", -1)
+    query.set("tempNight", 30)
+    query.set("weather1", "阴")
+    query.set("weather2", "晴")
+    query.set("wind1", "北风")
+    query.set("wind2", "南风")
+    query.set("windForce", "12级")
+    query.save().then(res => {
+      console.log('Bmob新增成功=')
+      console.log(res)
+    }).catch(err => {
+      console.log('Bmob新增失败=')
+      console.log(err)
+    });
+    /** 查询所有数据 */
+    //const query = Bmob.Query("WeatherDay");
+    query.find().then(res => {
+      console.log('Bmob查询所有数据，总数=' + res.length)
+      console.log(res)
+      for (var i = 0; i < res.length; i++) {
+        //var object = res[i];
+        //console.log('Bmob查询所有数据，第'+object.id + '条的时间=' + object.get('date'));
+        if (i === 0) {
+          var object = res[i];
+          console.log('Bmob指定查询，ID=' + object.objectId + "，日期=" + object.date)
         }
-
-
       }
     });
+    /** 获取一行记录 */
+    //const query = Bmob.Query('tableName');
+    query.get('f6bec20b3f').then(res => {
+      console.log('Bmob单条查询成功=')
+      console.log(res)
+    }).catch(err => {
+      console.log('Bmob查询失败=')
+      console.log(err)
+    });
+
+
+
+    /** 支持批量上传 */
+    // wx.chooseImage({
+    //   success: function (res) {
+    //     console.log(res)
+    //     var tempFilePaths = res.tempFilePaths
+    //     var file;
+    //     for (let item of tempFilePaths) {
+    //       console.log('itemn', item)
+    //       file = Bmob.File('abc.jpg', item);
+    //     }
+    //     file.save().then(res => {
+    //       console.log(res.length);
+    //       console.log(res);
+    //     })
+    //   }
+    // });
+
+
+    /** 添加地理位置 */
+    // const point = Bmob.GeoPoint({ latitude: 23.052033, longitude: 113.405447 })
+    // const query = Bmob.Query('tableName');
+    // query.set("字段名称", point)
+    // query.save().then(res => {
+    //   console.log(res)
+    // }).catch(err => {
+    //   console.log(err)
+    // });
+    /** 查询地理位置 */
+    // const query = Bmob.Query("tableName");
+    // query.withinKilometers("字段名", point, 10);  //10指的是公里
+    // query.find().then(res => {
+    //   console.log(res)
+    // });
+    //----------------------------------------------------------------------
   },
-
-
-  //═══════════════════════════════════════════════════════════════════════════════════════════════════════╗
-  //获取天气来自中国天气网
-  getWeatherComCn1dn() {
-
-    //测试解析xml数组
-    var xml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><DongFang><Company><cNname>1</cNname><cIP>1</cIP></Company><Company><cNname>2</cNname><cIP>2</cIP></Company><Company><cNname>3</cNname><cIP>3</cIP></Company><Company><cNname>4</cNname><cIP>4</cIP></Company><Company><cNname>5</cNname><cIP>5</cIP></Company><Company><cNname>6</cNname><cIP>6</cIP></Company></DongFang>"
-    var XMLParser = new Parser.DOMParser();
-    //var doc = XMLParser.parseFromString(xml)
-
-    //var x0 = doc.getElementsByTagName('PARAM')[0]
-    /*var elements = doc.getElementsByTagName("Company");
-   for (var i = 0; i < elements.length; i++) {
-    var name = elements[i].getElementsByTagName("cNname")[0].firstChild.nodeValue;
-    var ip = elements[i].getElementsByTagName("cIP")[0].firstChild.nodeValue;
-    console.log(name + '' + ip)
-  }*/
-
-    //微信get请求
-    wx.request({
-      //请求接口
-      url: 'http://forecast.weather.com.cn/town/weather1dn/101281007009.shtml',
-      //请求成功（箭头函数，参数：res）
-      success: res => {
-        var doc = XMLParser.parseFromString(res.data);
-        var divs = doc.getElementsByTagName("div");
-
-        //var divs = doc.getElementsByTagName("div")[0].getAttribute("class");
-        //var divs = doc.getElementById("town");
-        //var divs = doc.getElementsByTagName("input").length;
-
-        //var divs = doc.getElementsByTagName("div");
-        //var child = divs.childNodes[0];
-
-        //console.log('圈群by何洪丹' + divs)
-        //console.log('仙裙' + child.nodeValue)
-
-        for (var i = 0; i < divs.length; i++) {
-          //返回指定属性名（class）的属性值
-          var classV1 = divs[i].getAttribute("class");
-          if (classV1 == "L_weather") {
-            //console.log(i + '仙裙' + classV1)
-
-            var L_weather = doc.getElementsByTagName("div")[i];
-            //console.log('仙裙' + L_weather)
-            var divsL_weather = L_weather.getElementsByTagName("div");
-            for (var j = 0; j < divsL_weather.length; j++) {
-              var classV2 = divs[j].getAttribute("class");
-              if (classV2 == "todayRight") {
-
-                var todayRight = doc.getElementsByTagName("div")[j];
-                //console.log('仙裙' + todayRight)
-                var divsTodayRightr = todayRight.getElementsByTagName("div");
-                for (var k = 0; k < divsTodayRightr.length; k++) {
-                  var classV3 = divs[k].getAttribute("class");
-                  if (classV3 == "todayCharts") {
-                    var todayCharts = doc.getElementsByTagName("div")[k];
-
-                    //同时设几个变量(数组，全部html，时间，天气，风向，风力)
-                    var data = [],
-                      html, time, housr_icons_w, wind, windL;
-                    var weatherALL = todayCharts.getElementsByTagName('ul')[0];
-                    var weatherALLs = weatherALL.getElementsByTagName('li');
-                    //打印标签之间的内容，包括标签和文本信息
-                    //console.log('仙裙' + weatherALL.innerHtml)
-
-                    for (var l = 0; l < weatherALLs.length; l++) {
-                      var classV5 = weatherALLs[l];
-                      var c1 = classV5.getAttribute("class");
-                      //当前所在小时的预报情况
-                      //if (c1 == "cur") {
-
-                      var divsHousrWeather = classV5.getElementsByTagName("div");
-                      for (var m = 0; m < divsHousrWeather.length; m++) {
-                        var classV6 = divsHousrWeather[m].getAttribute("class");
-                        //当前时间(小时)
-                        if (classV6 == "time") {
-                          console.log('[仙裙]' + divsHousrWeather[m].textContent)
-                        }
-
-                        //温度
-                        if (classV6 == "charts") {
-                          console.log('[仙裙]' + divsHousrWeather[m].textContent)
-                        }
-                        //风向
-                        if (classV6 == "wind") {
-                          console.log('[仙裙]' + divsHousrWeather[m].textContent)
-                        }
-                        //风力
-                        if (classV6 == "windL") {
-                          //打印标签之间的纯文本信息，会将标签过滤掉
-                          //console.log('仙裙' + divsHousrWeather[m].innerText)
-                          //console.log('仙裙' + divsHousrWeather[m].getText)
-                          console.log('[仙裙]' + divsHousrWeather[m].textContent)
-                        }
-                      }
-
-                      var iHousr_icons_w = classV5.getElementsByTagName("i");
-                      for (var m1 = 0; m1 < iHousr_icons_w.length; m1++) {
-                        var classV6 = iHousr_icons_w[m1].getAttribute("class");
-                        var titleV6 = iHousr_icons_w[m1].getAttribute("title");
-                        //天气
-                        if (classV6 == "weather housr_icons_w d07") {
-                          console.log('[仙裙]' + titleV6)
-                        }
-                      }
-
-                      console.log(" ")
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-    })
-
-    /** 
-        var x1 = doc.getElementsByTagName('DBID')[0]
-        var x2 = doc.getElementsByTagName('SEQUENCE')[0]
-        var x3 = doc.getElementsByTagName('MAXNS')[0]
-        var x4 = doc.getElementsByTagName('MINIDENTITIES')[0]
-        var x5 = doc.getElementsByTagName('MAXEVALUE')[0]
-        var x6 = doc.getElementsByTagName('USERNAME')[0]
-        var x7 = doc.getElementsByTagName('PASSWORD')[0]
-        var x8 = doc.getElementsByTagName('TYPE')[0]
-        var x9 = doc.getElementsByTagName('RETURN_TYPE')[0].firstChild.nodeValue
-        */
-
-    //console.log(x0+'')
-    //console.log(x1+'')
-    //console.log(x2.firstChild.nodeValue)
-    //console.log(x3.firstChild.nodeValue)
-  },
-  //═══════════════════════════════════════════════════════════════════════════════════════════════════════╝
-
-
-
-
-
-
-  //═══════════════════════════════════════════════════════════════════════════════════════════════════════╗
-  //中国天气网API获取遂溪天气
-  getSX1() {
-    //微信get请求
-    wx.request({
-      //请求接口
-      url: 'http://www.weather.com.cn/data/sk/101281007.html',
-      //url: 'http://www.weather.com.cn/data/cityinfo/101281007.html',
-      //url: 'http://mobile.weather.com.cn/data/forecast/101281007.html?_=1381891660081',
-      //请求成功（箭头函数，参数：res）
-      success: res => {
-        //打印日志
-        console.log("遂溪1")
-        console.log(res)
-      },
-    })
-  },
-  //═══════════════════════════════════════════════════════════════════════════════════════════════════════╝
 
 
 })

@@ -51,7 +51,7 @@
 <scroll-view scroll-x>
   <!-- 并列(列表)视图 -->
   <view class='forecast-list'>
-    <view class='forecast-item' wx:for="{{hourlyWeather}}">
+    <view class='forecast-item' wx:for="{{hourlyWeather}}" wx:key="hourly">
     <!-- 未来天气时间 -->
     <view class='forecast-time'>{{item.time}}</view>
     <!-- 未来天气图标 -->

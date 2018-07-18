@@ -3,6 +3,12 @@
 //导入
 var qcloud = require('./vendor/wafer2-client-sdk/index')
 var config = require('./config')
+//获取Bmob实例
+var Bmob = require('./libs/bmob/Bmob-1.6.1.min.js')
+Bmob.initialize(
+  '2fb6fe153e51032b3f59a55291efe93e',
+  'a1b824a36e36337ffcf567bbad22ea43'
+)
 
 //微信用户授权信息
 let userInfo
@@ -45,6 +51,44 @@ App({
         }
       }
     })
+  },
+
+/**
+ * 一天的天气
+ * date 日期
+ * tempDay 温度(高)
+ * tempNight 温度(低)
+ * weather1 天气情况1
+ * weather2 天气情况1
+ * wind1 风向1
+ * wind2 风向1
+ * windForce 风力
+*/
+  WeatherDay(date, tempDay, tempNight, weather1, weather2, wind1, wind2, windForce) {
+    this.date = date;
+    this.tempDay = tempDay;
+    this.tempNight = tempNight;
+    this.weather1 = weather1;
+    this.weather2 = weather2;
+    this.wind1 = wind1;
+    this.wind2 = wind2;
+    this.windForce = windForce;
+  },
+
+  /**
+   * 一小时的天气
+   * time 时间（小时）
+   * temp 温度
+   * weather 天气
+   * wind 风向
+   * windForce 风力1
+  */
+  WeatherHour(time, temp, weather, wind, windForce) {
+    this.time = time;
+    this.temp = temp;
+    this.weather = weather;
+    this.wind = wind;
+    this.windForce = windForce;
   },
 
   doQcloudLogin({
