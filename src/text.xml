@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<DongFang>
+    <Company>
+        <cNname>1</cNname>
+        <cIP>1</cIP>
+    </Company>
+    <Company>
+        <cNname>2</cNname>
+        <cIP>2</cIP>
+    </Company>
+    <Company>
+        <cNname>3</cNname>
+        <cIP>3</cIP>
+    </Company>
+    <Company>
+        <cNname>4</cNname>
+        <cIP>4</cIP>
+    </Company>
+    <Company>
+        <cNname>5</cNname>
+        <cIP>5</cIP>
+    </Company>
+    <Company>
+        <cNname>6</cNname>
+        <cIP>6</cIP>
+    </Company>
+</DongFang>
