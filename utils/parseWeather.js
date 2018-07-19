@@ -5,11 +5,11 @@
 * 20180717
 */
 
-//1导入模块
+//1导入模块//https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Statements/import
+import { createDay } from '../bean/WeatherDay.js';
+import { createHour } from '../bean/WeatherHour.js';
+import { weatherString2Int, windDirectionString2Int, windForceString2Int } from '../utils/map.js';
 import { getYesterdayFormat } from '../utils/time.js';
-import { windForceString2Int, windDirectionString2Int, weatherString2Int } from '../utils/map.js';
-import { createDay, addDay } from '../bean/WeatherDay.js';
-import { createHour, addHour } from '../bean/WeatherHour.js';
 
 //向外暴露模块
 module.exports = {
@@ -21,21 +21,44 @@ module.exports = {
  * 
  */
 function parse(hourAndDayWeather, yesterdayWeather, callback) {
-  
+
   //缓存天天气数组
-  var dayWeatherArray = {};
+  var dayWeatherArray = new Array(8);
   //缓存一天天气
   var dayWeather;
   //缓存小时天气数组
   var hourWeatherArray = {};
   //缓存一小时天气
   var hourWeather;
-  [].push.apply(dayWeatherArray, [yesterdayWeather]);
+  //数组追加数据
 
+
+  //当前操作元素的时间字符串的长度
+  var jfLength;
+  //当前操作元素的时间的小时数
+  var hour;
+  //当前操作元素的时间的小时数（整型）
+  var cH = parseInt(currentHour);
+  //缓存昨天日期
+  var date = yesterdayWeather.date;
+  //日期字符串长度
+  var dateLength = date.length;
+  //当前的小时值
+  var currentHour;
+  //当前的值（赋值处）
+  var currentI = 0;
+  if (10 === dateLength) {
+    currentHour = date.substring(dateLength - 2, dateLength);
+    console.log('\n[仙裙] 当前小时=' + currentHour + "\n\n");
+  }
+
+  //逐1、3小时══════════════════════════════╗
   //var li = dayWeather.getElementsByTagName("li");
+  //逐1、3小时数据开始下标
   var hStart = hourAndDayWeather.indexOf("var");
+  //逐1、3小时数据结束下标
   var hEnd = hourAndDayWeather.indexOf(";") + 1;
-  //hour3data
+  //逐1、3小时数据（hour3data）
   var hour = hourAndDayWeather.substr(hStart, (hEnd - hStart));
 
   var hNStart = hour.indexOf("var ") + 4;
@@ -45,15 +68,18 @@ function parse(hourAndDayWeather, yesterdayWeather, callback) {
 
   var hDStart = hour.indexOf("[[{\"");
   var hDEnd = hour.indexOf("}]];") + 3;
-  //hour3data对应的内容
+  //逐1、3小时数组数据（hour3data）
   var hour3data = hour.substr(hDStart, (hDEnd - hDStart));
+
 
   //文本解析为对象
   var hour3 = JSON.parse(hour3data);
+  //一天中逐1、3小时天气数据
   var oneDay = hour3[0];
+  //一天中逐1、3小时天气数据长度（小时个数）
   var obj1Length = hour3.length;
-  //console.log('[仙裙]预报天数=' + obj1Length);
-
+  //对应（小时）天天气在总数组中的下标
+  var index;
   for (var i = 0; i < obj1Length; i++) {
     var oneDay = hour3[i];
     var dayWeatherObject = oneDay.length;
@@ -71,62 +97,136 @@ function parse(hourAndDayWeather, yesterdayWeather, callback) {
       //jf：年月日时
       var jf = obj1_1_1.jf;
 
-      //   console.log('[仙裙] ' + '年月日时=' + jf +
-      //     '，温度=' + jb +
-      //     '，天气=' + ja +
-      //     '，风向=' + jd +
-      //     '，风力=' + jc);
+      // console.log('[仙裙] ' + '年月日时=' + jf +
+      //   '，温度=' + jb +
+      //   '，天气=' + ja +
+      //   '，风向=' + jd +
+      //   '，风力=' + jc);
 
-      hourWeather = createDay(jf, jb, jb, ja, ja, jd, jd, jc);
+      hourWeather = createHour(jf, jb, jb, ja, ja, jd, jd, jc);
+      //向数组追加元素
       [].push.apply(hourWeatherArray, [hourWeather]);
 
+      if (i <= 2) {
+        jfLength = jf.length;
+        if (10 === jfLength) {
+          hour = jf.substring(jfLength - 2, jfLength);
+          if (currentHour === hour) {
+            dayWeather = createDay(jf, jb, jb, ja, ja, jd, jd, jc);
+            dayWeatherArray[i + 1] = dayWeather;
+            //console.log('[仙裙] 天=' + JSON.stringify(dayWeather));
+          }
+        }
+      } else {
+        if ((cH % 3) === 0) {
+          dayWeather = createDay(jf, jb, jb, ja, ja, jd, jd, jc);
+          dayWeatherArray[i + 1] = dayWeather;
+        } else {
+          //var index = 72 + ((i - 3) * 8) + (j / 3);
+          if (currentI < i) {
+            index = 72 + ((i - 3) * 8) - (currentHour - 8);
+            //console.log('[仙裙] 当前小时=' + currentHour + '，求余=' + (cH % 3));
+            //console.log('[仙裙] 天天气总长度=' + hourWeatherArray.length + "，要取的天天气下标=" + parseInt(index));
+
+            dayWeather = createDay(jf, jb, jb, ja, ja, jd, jd, jc);
+            dayWeatherArray[i + 1] = dayWeather;
+            currentI = i;
+          }
+        }
+      }
     }
   }
-  //逐1、3小时══════════════════════════════╗
-
   //逐1、3小时══════════════════════════════╝
+
+
+  //7天══════════════════════════════╗
+  //白天和夜晚数据
+  var eventDayAndNight = hourAndDayWeather.substr((hEnd + 1), hourAndDayWeather.length);
+  //白天和夜晚数据开始下标
+  var eDStart = eventDayAndNight.indexOf("var");
+  //白天和夜晚数据结束下标
+  var eDEnd = eventDayAndNight.indexOf(";") + 1;
+  //白天和夜晚数组数据
+  var eventDay = eventDayAndNight.substr(eDStart, (eDEnd - eDStart));
+  //console.log('[仙裙] 白天数据=' + eventDay);
+
+  var eDNStart = eventDay.indexOf("var ") + 4;
+  var eDNEnd = eventDay.indexOf(" = [\"");
+  var eventDayName = eventDay.substr((eDNStart), (eDNEnd - eDNStart));
+  //console.log('[仙裙] 白天名称=' + eventDayName);
+
+  var eDDStart = eventDay.indexOf("[\"");
+  var eDDEnd = eventDay.indexOf("];") + 1;
+  var eventDayData = eventDay.substr(eDDStart, (eDDEnd - eDDStart));
+  //console.log('[仙裙] 白天数据=' + eventDayData);
+
+
+  var eventNight = eventDayAndNight.substr((eDEnd + 1), eventDayAndNight.length);
+  //console.log('[仙裙] 夜晚数据=' + eventNight);
+  var eNStart = eventNight.indexOf("var");
+  var eNEnd = eventNight.indexOf(";") + 1;
+  eventNight = eventNight.substr(eNStart, (eNEnd - eNStart));
+  //console.log('[仙裙] 夜晚数组数据=' + eventNight);
+
+  var eNNStart = eventNight.indexOf("var ") + 4;
+  var eNNEnd = eventNight.indexOf(" = [\"");
+  var eventNightName = eventNight.substr((eNNStart), (eNNEnd - eNNStart));
+  //console.log('[仙裙] 夜晚名称=' + eventNightName);
+
+  var eNDStart = eventNight.indexOf("[\"");
+  var eNDEnd = eventNight.indexOf("];") + 1;
+  var eventNightData = eventNight.substr(eNDStart, (eNDEnd - eNDStart));
+  //console.log('[仙裙] 夜晚数据=' + eventNightData);
+
+
+  //JSON 字符串转换为对象
+  var eventDayObject = JSON.parse(eventDayData);
+  //console.log('[仙裙] 白天天数=' + eventDayObject.length);
+  //console.log('[仙裙] 夜晚天数=' + eventDayObject.length + "\n\n");
+  var eventNightObject = JSON.parse(eventNightData);
+  //白天（高）气温的长度
+  var eventDayLength = eventDayObject.length;
+  //夜晚（低）气温的长度
+  var eventNightLength = eventNightObject.length;
+  //缓存天天气数组的长度
+  var dWAL = dayWeatherArray.length;
+  //白天气温
+  var day;
+  //夜晚气温
+  var night;
+
+  if (eventDayLength === eventNightLength) {
+    for (i = 0; i < eventDayLength; i++) {
+      day = eventDayObject[i];
+      night = eventNightObject[i];
+      //console.log('[仙裙] 白天气温=' + day);
+      //console.log('[仙裙] 夜晚气温=' + night);
+      if (0 === i) {
+        yesterdayWeather.tempDay = day;
+        yesterdayWeather.tempNight = night;
+        dayWeatherArray[0] = yesterdayWeather;
+      } else {
+        if (dWAL > i) {
+          dayWeatherArray[i].tempDay = day;
+          dayWeatherArray[i].tempNight = night;
+        }
+      }
+      //console.log('[仙裙] 白天气温=' + day);
+      //console.log('[仙裙] 夜晚气温=' + night);
+    }
+  }
 
   // var url = url + "，3回调内函数";
   // console.log('[仙裙]' + url);
   // setTimeout(function () {
   //   callback(weatherData.toString);
   // }, 1000 * 2);
-  console.log('[仙裙] 最终返回，天天气长度=' + dayWeatherArray.length +
-    ',小时天气长度=' + hourWeatherArray.length);
+  // console.log('[仙裙] 最终返回，天天气长度=' + dayWeatherArray.length +
+  //   ',小时天气长度=' + hourWeatherArray.length);
+  //7天══════════════════════════════╝
+
 
   callback(dayWeatherArray, hourWeatherArray);
-
-  // var t2_ = today.substr((hEnd + 1), today.length);
-  // var wS2 = t2_.indexOf("var");
-  // var wE2 = t2_.indexOf(";") + 1;
-  // var t2 = t2_.substr(wS2, (wE2 - wS2));
-  // console.log('[仙裙]' + t2)
-
-  // var wS2_name = t2_.indexOf("var ") + 4;
-  // var wE2_name = t2_.indexOf(" = [\"");
-  // var t2_name = t2_.substr((wS2_name), (wE2_name - wS2_name));
-
-  // var wS2_json = t2_.indexOf("[\"");
-  // var wE2_json = t2_.indexOf("];") + 1;
-  // var t2_json = t2_.substr(wS2_json, (wE2_json - wS2_json));
-  // var obj2 = JSON.parse(t2_json);
-
-  // var t3 = t2_.substr((wE2 + 1), t2_.length);
-
-  // var wS3 = t3.indexOf("var");
-  // var wE3 = t3.indexOf(";") + 1;
-  // var t3 = t3.substr(wS3, (wE3 - wS3));
-
-  // //定义一数组 
-  // var strs = new Array();
-  // //字符分割
-  // strs = today.split("}");
-  // //将符串分割成一个数组
-  // //var day = today.split(",");//day
-  // for (i = 0; i < strs.length; i++) {
-  //   console.log('[仙裙]' + strs[i])
-  // }
-
 }
 
 /**
@@ -220,30 +320,17 @@ function parseWeather(XMLParser, result, callback) {
                   //   '，风向2' + wind2 +
                   //   '，风力' + windForce);
 
-                  //ja：天气（02阴、07小雨）
-                  //jb：温度（）
-                  //jc：风力（0 <3级、1 3-4级）
-                  //jd：风向（4南风、5西南风）
-                  //jf：年月日时
+                  var yesterday = getYesterdayFormat();
                   weather1 = weatherString2Int[weather1];
                   weather2 = weatherString2Int[weather2];
                   wind1 = windDirectionString2Int[wind1];
                   wind2 = windDirectionString2Int[wind2];
                   windForce = windForceString2Int[windForce];
-                  var yesterday = getYesterdayFormat();
-
-                  //"ja":"08","jb":"27","jc":"1","jd":"2","jf":"2018071708"
-                  var yesterdayData = "\"ja\"" + ":\"" + weather1 +
-                    "\"," + "\"jb\"" + ":\"" + weather2 +
-                    "\"," + "\"jc\"" + ":\"" + wind2 +
-                    "\"," + "\"jd\"" + ":\"" + windForce +
-                    "\"," + "\"jf\"" + ":\"" + yesterday + "\"";
-                  //console.log('[仙裙] 昨天=' + yesterdayData);
+                  //"ja":"天气","jb":"温度","jc":"风力","风向":"2","年月日时":"2018071708"
                   yesterdayWeather = createDay(yesterday, "-100", "-100", weather1, weather2, wind1, wind1, windForce);
-                  //console.log('[仙裙] 昨天对象=' + yesterdayWeather.date);
+                  //console.log('[仙裙] 昨天对象=' + yesterdayWeather.windForce);
                 }
               }
-
             }
           }
         }
@@ -253,6 +340,6 @@ function parseWeather(XMLParser, result, callback) {
   }
 
   //逐1、3小时&7天══════════════════════════════╝
-  parse(hourAndDayWeather, yesterdayWeather, function (data1, data2) { return callback(data1, data2); }); //同等于//getJSON(url, function (data) {return callback(data);});
+  parse(hourAndDayWeather, yesterdayWeather, function (dayWeatherArray, hourWeatherArray) { return callback(dayWeatherArray, hourWeatherArray); }); //同等于//getJSON(url, function (data) {return callback(data);});
 }
 

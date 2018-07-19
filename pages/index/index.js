@@ -228,8 +228,8 @@ Page({
         var longitude = res.longitude
         //距离计算
         var cMU = customMapUtil.calculateDistance(customMapUtil.latitude, customMapUtil.longitude, latitude, longitude);
-        console.log("自定义计算距离=" + cMU);
-        console.log("经度=" + longitude + "1纬度=" + latitude)
+        console.log("\n自定义距离计算工具=" + cMU + "米");
+        console.log("经度=" + longitude + "，纬度=" + latitude)
         //吐司显示
         wx.showToast({
           title: Math.round(cMU / 1000) + "公里+" + remainder + "米",
@@ -324,8 +324,10 @@ Page({
           var weatherHour;
 
           for (var i = 0; i < dayWeatherArray.length; i++) {
-            //console.log('[仙裙] 回调数组' + data[i].date);
             weatherDay = dayWeatherArray[i];
+            //weatherDayBean.addDay(queryWeatherDay, weatherDay);
+            console.log('[仙裙] 回调数组：' + (i) + '天=' + JSON.stringify(weatherDay));
+
             //weatherDayBean.createDay(ad.date, tempDay, tempNight, weather1, weather2, wind1, wind2, windForce);
             // console.log('[仙裙] 回调数组：时间=' + weatherDay.date +
             //         '，天气1=' + weatherDay.weather1 +
@@ -335,23 +337,14 @@ Page({
             //         '，风向1=' + weatherDay.wind1 +
             //         '，风向2=' + weatherDay.wind2 +
             //         '，风力=' + weatherDay.windForce);
-            //weatherDayBean.addDay(queryWeatherDay, weatherDay);
-            console.log('[仙裙] 回调数组：天=' + JSON.stringify(weatherDay));
           }
+          console.log("[仙裙] 回调数组：天数=" + dayWeatherArray.length + "\n\n");
 
           for (var j = 0; j < hourWeatherArray.length; j++) {
             weatherHour = hourWeatherArray[j];
             //weatherHourBean.addHour(queryWeatherHour, weatherHour);
-            console.log('[仙裙] 回调数组：小时=' + JSON.stringify(weatherHour));
+            console.log('[仙裙] 回调数组：' + (j + 1) + '小时=' + JSON.stringify(weatherHour));
           }
-
-
-
-          wx.showToast({
-            title: "回调处理 " + dayWeatherArray,
-            duration: 5000,
-            mask: true
-          })
         });
 
       }

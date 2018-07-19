@@ -58,6 +58,26 @@ function create(date, tempDay, tempNight, weather1, weather2, wind1, wind2, wind
  * 一天的天气对象
  */
 function add(query, weatherDay){
+  if(weatherDay === undefined){return;};
+  if(weatherDay.date === undefined){
+    weatherDay.date = "";
+  };
+  if(weatherDay.tempDay === undefined){
+    weatherDay.tempDay = "";
+  };
+  if(weatherDay.tempNight === undefined){
+    weatherDay.tempNight = "";
+  };
+  if(weatherDay.weather1 === undefined){
+    weatherDay.weather1 = "";
+  };
+  if(weatherDay.weather2 === undefined){
+    weatherDay.weather2 = "";
+  };
+  if(weatherDay.windForce === undefined){
+    weatherDay.windForce = "";
+  };
+
   //const query = Bmob.Query('WeatherDay');
   query.set("date", weatherDay.date)
   query.set("tempDay", weatherDay.tempDay)
